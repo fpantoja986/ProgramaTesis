@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 
     $stmt = $pdo->prepare("UPDATE usuarios SET nombre_completo=?, email=?, genero=?, foto_perfil=? WHERE id=?");
     $stmt->execute([$nombre, $email, $genero, $foto_perfil, $admin_id]);
-    
+
     // Actualizar datos en la variable $admin
     $admin['nombre_completo'] = $nombre;
     $admin['email'] = $email;
@@ -92,157 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #4e73df;
-            --secondary-color: #6f42c1;
-            --accent-color: #36b9cc;
-            --light-bg: #f8f9fc;
-            --dark-text: #5a5c69;
-            --success-color: #1cc88a;
-            --danger-color: #e74a3b;
-            --warning-color: #f6c23e;
-        }
-        
-        body {
-            background-color: var(--light-bg);
-            color: #333;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding-top: 20px;
-        }
-        
-        .settings-container {
-            background: white;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-            margin-bottom: 30px;
-        }
-        
-        .perfil-img {
-            width: 150px;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 5px solid white;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-            transition: all 0.3s;
-        }
-        
-        .perfil-img:hover {
-            transform: scale(1.03);
-        }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            border-radius: 5px;
-            padding: 10px 20px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary:hover {
-            background-color: #3a5fc8;
-            border-color: #3a5fc8;
-            transform: translateY(-2px);
-        }
-        
-        .btn-warning {
-            background-color: var(--warning-color);
-            border-color: var(--warning-color);
-            color: #fff;
-            border-radius: 5px;
-            padding: 10px 20px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .btn-warning:hover {
-            background-color: #f4b619;
-            border-color: #f4b619;
-            color: #fff;
-            transform: translateY(-2px);
-        }
-        
-        .form-control {
-            border-radius: 5px;
-            padding: 12px 15px;
-            border: 1px solid #d1d3e2;
-            transition: all 0.3s;
-        }
-        
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
-        }
-        
-        .alert {
-            border-radius: 5px;
-            border: none;
-            padding: 15px 20px;
-            font-weight: 500;
-        }
-        
-        .alert-success {
-            background-color: rgba(28, 200, 138, 0.2);
-            color: var(--success-color);
-        }
-        
-        .alert-danger {
-            background-color: rgba(231, 74, 59, 0.2);
-            color: var(--danger-color);
-        }
-        
-        .section-title {
-            position: relative;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            color: var(--dark-text);
-            font-weight: 600;
-        }
-        
-        .section-title:after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 50px;
-            height: 3px;
-            background-color: var(--primary-color);
-            border-radius: 3px;
-        }
-        
-        .custom-file-input:focus ~ .custom-file-label {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
-        }
-        
-        .custom-file-label {
-            border-radius: 5px;
-            padding: 12px 15px;
-            border: 1px solid #d1d3e2;
-        }
-        
-        .form-check-input:checked {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .header-title {
-            color: var(--primary-color);
-            font-weight: 700;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--light-bg);
-        }
-        
-        .input-group-text {
-            background-color: #eaecf4;
-            border: 1px solid #d1d3e2;
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="stylesadmin.css?v=1">
+
 </head>
 
 <body>
@@ -251,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
         <div class="row justify-content-center">
             <div class="col-md-11">
                 <h2 class="header-title text-center"><i class="fas fa-cogs mr-2"></i>Ajustes de Administrador</h2>
-                
+
                 <?php if (!empty($success)): ?>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <i class="fas fa-check-circle mr-2"></i> <?= $success ?>
@@ -282,17 +133,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
                         <div class="col-md-6">
                             <form method="POST" enctype="multipart/form-data">
                                 <h5 class="section-title">Información del perfil</h5>
-                                
+
                                 <div class="text-center mb-4">
                                     <img src="<?= !empty($admin['foto_perfil']) ? 'data:image/jpeg;base64,' . $admin['foto_perfil'] : 'https://ui-avatars.com/api/?name=' . urlencode($admin['nombre_completo']) . '&size=150&background=4e73df&color=fff&bold=true' ?>" class="perfil-img mb-3 shadow" alt="Foto de perfil">
-                                    
+
                                     <div class="custom-file">
                                         <input type="file" class="custom-file-input" id="fotoPerfil" name="foto_perfil">
                                         <label class="custom-file-label" for="fotoPerfil">Seleccionar imagen</label>
                                     </div>
-                                    
+
                                     <small class="form-text text-muted mt-2">Formatos: JPG, PNG. Tamaño máximo: 2MB. Recomendado: 150x150px</small>
-                                    
+
                                     <div class="form-check mt-3">
                                         <input type="checkbox" class="form-check-input" id="removeFotoPerfil" name="remove_foto_perfil" value="1">
                                         <label class="form-check-label text-danger" for="removeFotoPerfil">
@@ -300,17 +151,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
                                         </label>
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label class="font-weight-bold">Nombre completo</label>
                                     <input type="text" name="nombre_completo" class="form-control" value="<?= htmlspecialchars($admin['nombre_completo'] ?? '') ?>" required>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label class="font-weight-bold">Email</label>
                                     <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($admin['email'] ?? '') ?>" required>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label class="font-weight-bold">Género</label>
                                     <select name="genero" class="form-control" required>
@@ -319,19 +170,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
                                         <option value="Otro" <?= ($admin['genero'] ?? '') == 'Otro' ? 'selected' : ''; ?>>Otro</option>
                                     </select>
                                 </div>
-                                
+
                                 <button type="submit" name="update_profile" class="btn btn-primary btn-block mt-4">
                                     <i class="fas fa-save mr-2"></i> Guardar cambios
                                 </button>
                             </form>
                         </div>
-                        
+
                         <div class="col-md-1"></div>
-                        
+
                         <div class="col-md-5">
                             <form method="POST">
                                 <h5 class="section-title">Cambiar contraseña</h5>
-                                
+
                                 <div class="form-group">
                                     <label class="font-weight-bold">Contraseña actual</label>
                                     <div class="input-group">
@@ -343,7 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label class="font-weight-bold">Nueva contraseña</label>
                                     <div class="input-group">
@@ -356,7 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
                                     </div>
                                     <small class="form-text text-muted">Mínimo 8 caracteres</small>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label class="font-weight-bold">Confirmar nueva contraseña</label>
                                     <div class="input-group">
@@ -368,7 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <button type="submit" name="change_password" class="btn btn-warning btn-block mt-3">
                                     <i class="fas fa-key mr-2"></i> Actualizar contraseña
                                 </button>
@@ -376,9 +227,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="text-center mt-4">
-                    
+
                 </div>
             </div>
         </div>

@@ -58,7 +58,7 @@ try {
     // Redirección según rol
     $redirect = match($user['rol']) {
         'administrador' => 'panel_admin/admin_dashboard.php',
-        'usuario' => 'user_dashboard.php',
+        'usuario' => 'panel_user/user_dashboard.php',
         default => 'login.php?error=Rol no válido'
     };
 

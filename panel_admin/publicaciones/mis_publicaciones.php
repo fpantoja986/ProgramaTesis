@@ -39,10 +39,11 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="styles_publicaciones.css">
 
+
 </head>
 
 <body>
-   <?php include '../panel_sidebar.php'; ?>
+    <?php include '../panel_sidebar.php'; ?>
 
     <div class="admin-container">
         <div class="page-header">
@@ -153,7 +154,7 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <form id="formEditar">
                     <div class="modal-body">
                         <input type="hidden" id="edit_id" name="id">
-                        
+
                         <div class="form-group">
                             <label for="edit_titulo">Título del contenido</label>
                             <input type="text" class="form-control" id="edit_titulo" name="titulo" required>
@@ -176,8 +177,8 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <div class="form-group">
                             <label for="edit_archivo">Cambiar archivo (opcional)</label>
-                            <input type="file" class="form-control-file" id="edit_archivo" name="archivo" 
-                                   accept=".pdf,audio/*,video/*,image/*,.txt,.doc,.docx,.odt,.rtf,.xls,.xlsx,.ppt,.pptx">
+                            <input type="file" class="form-control-file" id="edit_archivo" name="archivo"
+                                accept=".pdf,audio/*,video/*,image/*,.txt,.doc,.docx,.odt,.rtf,.xls,.xlsx,.ppt,.pptx">
                             <small class="form-text text-muted">Deja vacío si no quieres cambiar el archivo</small>
                         </div>
                     </div>
@@ -210,10 +211,10 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Manejar eliminación de publicaciones
         document.querySelectorAll('.btn-eliminar').forEach(button => {
-            button.addEventListener('click', function (e) {
+            button.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const id = this.getAttribute('data-id');
-                
+
                 Swal.fire({
                     title: '¿Estás seguro?',
                     text: "Esta acción eliminará la publicación de forma permanente.",
@@ -252,7 +253,7 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Manejar edición de publicaciones
         document.querySelectorAll('.btn-editar').forEach(button => {
-            button.addEventListener('click', function (e) {
+            button.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const id = this.getAttribute('data-id');
                 cargarDatosPublicacion(id);
@@ -282,41 +283,41 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
         // Manejar envío del formulario de edición
         document.getElementById('formEditar').addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const formData = new FormData(this);
-            
+
             fetch('actualizar_publicacion.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    $('#modalEditar').modal('hide');
-                    Swal.fire({
-                        title: '¡Actualizado!',
-                        text: 'La publicación ha sido actualizada con éxito.',
-                        icon: 'success',
-                        timer: 2000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.reload();
-                    });
-                } else {
-                    Swal.fire('Error', data.error || 'No se pudo actualizar la publicación.', 'error');
-                }
-            })
-            .catch(() => {
-                Swal.fire('Error', 'Error de conexión al actualizar la publicación.', 'error');
-            });
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        $('#modalEditar').modal('hide');
+                        Swal.fire({
+                            title: '¡Actualizado!',
+                            text: 'La publicación ha sido actualizada con éxito.',
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', data.error || 'No se pudo actualizar la publicación.', 'error');
+                    }
+                })
+                .catch(() => {
+                    Swal.fire('Error', 'Error de conexión al actualizar la publicación.', 'error');
+                });
         });
 
         // Cambiar tipos de archivo permitidos según el tipo de contenido en el modal
         document.getElementById('edit_tipo').addEventListener('change', function() {
             const tipo = this.value;
             const archivoInput = document.getElementById('edit_archivo');
-            
-            switch(tipo) {
+
+            switch (tipo) {
                 case 'articulo':
                     archivoInput.setAttribute('accept', '.pdf');
                     break;

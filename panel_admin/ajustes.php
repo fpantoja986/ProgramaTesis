@@ -92,19 +92,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="stylesadmin.css?v=1">
-
+    
 </head>
 
 <body>
     <?php include 'panel_sidebar.php'; ?>
+    
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-11">
-                <h2 class="header-title text-center"><i class="fas fa-cogs mr-2"></i>Ajustes de Administrador</h2>
+            <div class="col-lg-10 col-xl-9">
+                <h2 class="header-title text-center animate-fadeIn"><i class="fas fa-user-cog mr-2"></i>Configuración de Perfil</h2>
 
                 <?php if (!empty($success)): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="alert alert-success alert-dismissible fade show animate-fadeIn" role="alert">
                         <i class="fas fa-check-circle mr-2"></i> <?= $success ?>
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
                     </div>
                 <?php endif; ?>
                 <?php if (!empty($error_pass)): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="alert alert-danger alert-dismissible fade show animate-fadeIn" role="alert">
                         <i class="fas fa-exclamation-circle mr-2"></i> <?= $error_pass ?>
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
                     </div>
                 <?php endif; ?>
                 <?php if (!empty($success_pass)): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="alert alert-success alert-dismissible fade show animate-fadeIn" role="alert">
                         <i class="fas fa-check-circle mr-2"></i> <?= $success_pass ?>
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -128,108 +128,137 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
                     </div>
                 <?php endif; ?>
 
-                <div class="settings-container">
+                <div class="settings-container animate-fadeIn">
                     <div class="row">
                         <div class="col-md-6">
-                            <form method="POST" enctype="multipart/form-data">
-                                <h5 class="section-title">Información del perfil</h5>
+                            <div class="card-style p-4 h-100">
+                                <form method="POST" enctype="multipart/form-data">
+                                    <h5 class="section-title"><i class="fas fa-user-circle mr-2"></i>Información Personal</h5>
 
-                                <div class="text-center mb-4">
-                                    <img src="<?= !empty($admin['foto_perfil']) ? 'data:image/jpeg;base64,' . $admin['foto_perfil'] : 'https://ui-avatars.com/api/?name=' . urlencode($admin['nombre_completo']) . '&size=150&background=4e73df&color=fff&bold=true' ?>" class="perfil-img mb-3 shadow" alt="Foto de perfil">
+                                    <div class="text-center mb-4">
+                                        <div class="position-relative d-inline-block">
+                                            <img src="<?= !empty($admin['foto_perfil']) ? 'data:image/jpeg;base64,' . $admin['foto_perfil'] : 'https://ui-avatars.com/api/?name=' . urlencode($admin['nombre_completo']) . '&size=150&background=4e73df&color=fff&bold=true' ?>" 
+                                                 class="perfil-img mb-3" 
+                                                 alt="Foto de perfil"
+                                                 id="profileImagePreview">
+                                            
+                                            <div class="profile-actions">
+                                                <label for="fotoPerfil" class="profile-action-btn" title="Cambiar foto">
+                                                    <i class="fas fa-camera"></i>
+                                                </label>
+                                                <button type="button" class="profile-action-btn" onclick="document.getElementById('removeFotoPerfil').click()" title="Eliminar foto">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </div>
+                                        </div>
 
-                                    <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="fotoPerfil" name="foto_perfil">
-                                        <label class="custom-file-label" for="fotoPerfil">Seleccionar imagen</label>
+                                        <input type="file" class="custom-file-input d-none" id="fotoPerfil" name="foto_perfil" accept="image/*">
+                                        
+                                        <div class="form-check mt-3">
+                                            <input type="checkbox" class="form-check-input d-none" id="removeFotoPerfil" name="remove_foto_perfil" value="1">
+                                        </div>
+
+                                        <small class="form-text text-muted">Formatos: JPG, PNG. Tamaño máximo: 2MB</small>
                                     </div>
 
-                                    <small class="form-text text-muted mt-2">Formatos: JPG, PNG. Tamaño máximo: 2MB. Recomendado: 150x150px</small>
-
-                                    <div class="form-check mt-3">
-                                        <input type="checkbox" class="form-check-input" id="removeFotoPerfil" name="remove_foto_perfil" value="1">
-                                        <label class="form-check-label text-danger" for="removeFotoPerfil">
-                                            <i class="fas fa-trash-alt mr-1"></i> Eliminar foto actual
-                                        </label>
+                                    <div class="form-group">
+                                        <label class="font-weight-bold text-dark">Nombre completo</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text bg-light"><i class="fas fa-user text-primary"></i></span>
+                                            </div>
+                                            <input type="text" name="nombre_completo" class="form-control" value="<?= htmlspecialchars($admin['nombre_completo'] ?? '') ?>" required>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="form-group">
-                                    <label class="font-weight-bold">Nombre completo</label>
-                                    <input type="text" name="nombre_completo" class="form-control" value="<?= htmlspecialchars($admin['nombre_completo'] ?? '') ?>" required>
-                                </div>
+                                    <div class="form-group">
+                                        <label class="font-weight-bold text-dark">Email</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text bg-light"><i class="fas fa-envelope text-primary"></i></span>
+                                            </div>
+                                            <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($admin['email'] ?? '') ?>" required>
+                                        </div>
+                                    </div>
 
-                                <div class="form-group">
-                                    <label class="font-weight-bold">Email</label>
-                                    <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($admin['email'] ?? '') ?>" required>
-                                </div>
+                                    <div class="form-group">
+                                        <label class="font-weight-bold text-dark">Género</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text bg-light"><i class="fas fa-venus-mars text-primary"></i></span>
+                                            </div>
+                                            <select name="genero" class="form-control" required>
+                                                <option value="Masculino" <?= ($admin['genero'] ?? '') == 'Masculino' ? 'selected' : ''; ?>>Masculino</option>
+                                                <option value="Femenino" <?= ($admin['genero'] ?? '') == 'Femenino' ? 'selected' : ''; ?>>Femenino</option>
+                                                <option value="Otro" <?= ($admin['genero'] ?? '') == 'Otro' ? 'selected' : ''; ?>>Otro</option>
+                                            </select>
+                                        </div>
+                                    </div>
 
-                                <div class="form-group">
-                                    <label class="font-weight-bold">Género</label>
-                                    <select name="genero" class="form-control" required>
-                                        <option value="Masculino" <?= ($admin['genero'] ?? '') == 'Masculino' ? 'selected' : ''; ?>>Masculino</option>
-                                        <option value="Femenino" <?= ($admin['genero'] ?? '') == 'Femenino' ? 'selected' : ''; ?>>Femenino</option>
-                                        <option value="Otro" <?= ($admin['genero'] ?? '') == 'Otro' ? 'selected' : ''; ?>>Otro</option>
-                                    </select>
-                                </div>
-
-                                <button type="submit" name="update_profile" class="btn btn-primary btn-block mt-4">
-                                    <i class="fas fa-save mr-2"></i> Guardar cambios
-                                </button>
-                            </form>
+                                    <button type="submit" name="update_profile" class="btn btn-primary btn-block mt-4 py-3">
+                                        <i class="fas fa-save mr-2"></i> Guardar Cambios
+                                    </button>
+                                </form>
+                            </div>
                         </div>
 
-                        <div class="col-md-1"></div>
+                        <div class="col-md-6 mt-4 mt-md-0">
+                            <div class="card-style p-4 h-100">
+                                <form method="POST">
+                                    <h5 class="section-title"><i class="fas fa-lock mr-2"></i>Seguridad</h5>
 
-                        <div class="col-md-5">
-                            <form method="POST">
-                                <h5 class="section-title">Cambiar contraseña</h5>
-
-                                <div class="form-group">
-                                    <label class="font-weight-bold">Contraseña actual</label>
-                                    <div class="input-group">
-                                        <input type="password" name="password_actual" class="form-control" id="currentPassword" required>
-                                        <div class="input-group-append">
-                                            <span class="input-group-text toggle-password" data-target="#currentPassword">
-                                                <i class="fas fa-eye"></i>
-                                            </span>
+                                    <div class="form-group">
+                                        <label class="font-weight-bold text-dark">Contraseña actual</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text bg-light"><i class="fas fa-key text-primary"></i></span>
+                                            </div>
+                                            <input type="password" name="password_actual" class="form-control" id="currentPassword" required placeholder="Ingresa tu contraseña actual">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text toggle-password" data-target="#currentPassword">
+                                                    <i class="fas fa-eye"></i>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="form-group">
-                                    <label class="font-weight-bold">Nueva contraseña</label>
-                                    <div class="input-group">
-                                        <input type="password" name="password_nueva" class="form-control" id="newPassword" required>
-                                        <div class="input-group-append">
-                                            <span class="input-group-text toggle-password" data-target="#newPassword">
-                                                <i class="fas fa-eye"></i>
-                                            </span>
+                                    <div class="form-group">
+                                        <label class="font-weight-bold text-dark">Nueva contraseña</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text bg-light"><i class="fas fa-lock text-primary"></i></span>
+                                            </div>
+                                            <input type="password" name="password_nueva" class="form-control" id="newPassword" required placeholder="Mínimo 8 caracteres">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text toggle-password" data-target="#newPassword">
+                                                    <i class="fas fa-eye"></i>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <small class="form-text text-muted">Mínimo 8 caracteres</small>
-                                </div>
 
-                                <div class="form-group">
-                                    <label class="font-weight-bold">Confirmar nueva contraseña</label>
-                                    <div class="input-group">
-                                        <input type="password" name="password_confirmar" class="form-control" id="confirmPassword" required>
-                                        <div class="input-group-append">
-                                            <span class="input-group-text toggle-password" data-target="#confirmPassword">
-                                                <i class="fas fa-eye"></i>
-                                            </span>
+                                    <div class="form-group">
+                                        <label class="font-weight-bold text-dark">Confirmar nueva contraseña</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text bg-light"><i class="fas fa-lock text-primary"></i></span>
+                                            </div>
+                                            <input type="password" name="password_confirmar" class="form-control" id="confirmPassword" required placeholder="Repite tu nueva contraseña">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text toggle-password" data-target="#confirmPassword">
+                                                    <i class="fas fa-eye"></i>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <button type="submit" name="change_password" class="btn btn-warning btn-block mt-3">
-                                    <i class="fas fa-key mr-2"></i> Actualizar contraseña
-                                </button>
-                            </form>
+                                    <button type="submit" name="change_password" class="btn btn-warning btn-block mt-4 py-3">
+                                        <i class="fas fa-key mr-2"></i> Actualizar Contraseña
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="text-center mt-4">
-
                 </div>
             </div>
         </div>
@@ -253,11 +282,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
             });
         });
 
-        // Actualizar nombre de archivo en input file
-        document.querySelector('.custom-file-input').addEventListener('change', function(e) {
-            var fileName = document.getElementById("fotoPerfil").files[0].name;
-            var nextSibling = e.target.nextElementSibling;
-            nextSibling.innerText = fileName;
+        // Vista previa de imagen
+        document.getElementById('fotoPerfil').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profileImagePreview').src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
         });
 
         // Animación para las alertas
@@ -272,6 +306,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
                 }, 5000);
             });
         });
+
+        // Efecto de carga para imagen
+        const profileImg = document.getElementById('profileImagePreview');
+        if (profileImg) {
+            profileImg.onload = function() {
+                this.classList.remove('img-loading');
+            };
+            if (!profileImg.complete) {
+                profileImg.classList.add('img-loading');
+            }
+        }
     </script>
 </body>
 

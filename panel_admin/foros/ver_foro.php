@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 $foro_id = (int)($_GET['id'] ?? 0);
 
 if (!$foro_id) {
-    header('Location: lista_foros.php');
+    header('Location: gestionar_foros.php');
     exit;
 }
 
@@ -26,7 +26,7 @@ $stmt->execute();
 $foro = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$foro) {
-    header('Location: lista_foros.php');
+    header('Location: gestionar_foros.php');
     exit;
 }
 
@@ -57,7 +57,7 @@ $temas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="styles_foro.css">
+    <link rel="stylesheet" href="stylesadmin.css">
 </head>
 <body>
     <?php include '../panel_sidebar.php'; ?>
@@ -67,7 +67,7 @@ $temas = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
-                    <a href="lista_foros.php"><i class="fas fa-home"></i> Foros</a>
+                    <a href="gestionar_foros.php"><i class="fas fa-home"></i> Foros</a>
                 </li>
                 <li class="breadcrumb-item active"><?= htmlspecialchars($foro['titulo']) ?></li>
             </ol>
@@ -225,6 +225,8 @@ $temas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 });
         });
     </script>
+    
 </body>
+
 
 </html>

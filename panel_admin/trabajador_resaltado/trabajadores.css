@@ -1,0 +1,461 @@
+        .admin-container {
+            padding: 20px;
+            margin-left: 250px;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .page-title {
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .btn-create-destacado {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-create-destacado:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            color: white;
+        }
+        
+        .destacado-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+        
+        .destacado-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .destacado-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .destacado-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.1);
+            transform: rotate(45deg);
+        }
+        
+        .empleado-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .empleado-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.3);
+            object-fit: cover;
+        }
+        
+        .empleado-details h5 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+        
+        .empleado-details small {
+            opacity: 0.9;
+        }
+        
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            z-index: 2;
+        }
+        
+        .status-active {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 2px solid rgba(40, 167, 69, 0.3);
+        }
+        
+        .status-inactive {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 2px solid rgba(220, 53, 69, 0.3);
+        }
+        
+        .status-programado {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 2px solid rgba(255, 193, 7, 0.3);
+        }
+        
+        .destacado-body {
+            padding: 25px;
+        }
+        
+        .periodo-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .mensaje-merito {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .destacado-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .destacado-actions .btn {
+            border-radius: 20px;
+            font-weight: 500;
+            padding: 8px 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .destacado-actions .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .preview-image {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-container {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .page-title {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .empleado-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .destacado-actions {
+                justify-content: center;
+            }
+        }
+
+/* Estilos para el popup de trabajador destacado */
+
+.trabajador-destacado-modal .modal-content {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    color: white;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    z-index: 1000;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    background: rgba(255,255,255,0.3);
+    transform: rotate(90deg);
+}
+
+.modal-header-destacado {
+    text-align: center;
+    padding: 40px 20px 20px;
+    position: relative;
+    background: transparent;
+    border: none;
+}
+
+.stars-animation {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+}
+
+.stars-animation i {
+    font-size: 24px;
+    color: #ffd700;
+    animation: twinkle 2s infinite;
+    text-shadow: 0 0 10px rgba(255,215,0,0.5);
+}
+
+.stars-animation i:nth-child(1) { animation-delay: 0s; }
+.stars-animation i:nth-child(2) { animation-delay: 0.5s; }
+.stars-animation i:nth-child(3) { animation-delay: 1s; }
+
+@keyframes twinkle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.modal-title-destacado {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 40px 0 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    animation: glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.2); }
+    to { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 30px rgba(255,255,255,0.4); }
+}
+
+.periodo-destacado {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.modal-body-destacado {
+    padding: 20px 40px;
+    text-align: center;
+}
+
+.foto-trabajador-container {
+    margin-bottom: 30px;
+}
+
+.foto-trabajador-wrapper {
+    position: relative;
+    display: inline-block;
+    border-radius: 50%;
+    padding: 8px;
+    background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700);
+    animation: rotate 4s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.foto-trabajador {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 2;
+}
+
+.shine-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    animation: shine 3s ease-in-out infinite;
+    z-index: 1;
+}
+
+@keyframes shine {
+    0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+.info-trabajador {
+    background: rgba(255,255,255,0.15);
+    border-radius: 15px;
+    padding: 25px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.nombre-trabajador {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.mensaje-merito-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    text-align: left;
+}
+
+.icono-trofeo {
+    background: rgba(255,215,0,0.2);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 2px solid rgba(255,215,0,0.3);
+}
+
+.icono-trofeo i {
+    color: #ffd700;
+    font-size: 20px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-5px); }
+    60% { transform: translateY(-3px); }
+}
+
+.mensaje-merito {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin: 0;
+    opacity: 0.95;
+}
+
+.modal-footer-destacado {
+    padding: 30px 40px 40px;
+    text-align: center;
+    background: transparent;
+    border: none;
+}
+
+.felicitaciones p {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin: 0 0 20px 0;
+    opacity: 0.9;
+}
+
+.btn-continuar {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border: none;
+    color: white;
+    padding: 15px 40px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 30px;
+    box-shadow: 0 8px 25px rgba(40,167,69,0.3);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    animation: pulse 3s infinite;
+}
+
+.btn-continuar:hover {
+    background: linear-gradient(45deg, #218838, #1e7e34);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(40,167,69,0.4);
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 8px 25px rgba(40,167,69,0.3); }
+    50% { box-shadow: 0 8px 35px rgba(40,167,69,0.5); }
+    100% { box-shadow: 0 8px 25px rgba(40,167,69,0.3); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .modal-title-destacado { font-size: 1.8rem; }
+    .nombre-trabajador { font-size: 1.6rem; }
+    .modal-body-destacado { padding: 20px; }
+    .modal-footer-destacado { padding: 20px; }
+    .foto-trabajador, .foto-trabajador-wrapper { width: 120px; height: 120px; }
+    .shine-effect { width: 130px; height: 130px; }
+    .mensaje-merito-container { flex-direction: column; text-align: center; }
+}
+
+/* Animación de entrada del modal */
+.modal.fade .modal-dialog {
+    transform: scale(0.5) rotate(15deg);
+    transition: all 0.5s ease;
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1) rotate(0deg);
+}

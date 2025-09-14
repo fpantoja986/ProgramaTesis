@@ -1,0 +1,151 @@
+        .admin-container {
+            padding: 20px;
+            margin-left: 250px;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .stats-row {
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #007bff;
+        }
+        
+        .stat-card.danger { border-left-color: #dc3545; }
+        .stat-card.warning { border-left-color: #ffc107; }
+        .stat-card.success { border-left-color: #28a745; }
+        .stat-card.secondary { border-left-color: #6c757d; }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .moderacion-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .respuesta-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .respuesta-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .usuario-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .usuario-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .estado-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .estado-reportado { background: #ff6b6b; color: white; }
+        .estado-pendiente { background: #feca57; color: #333; }
+        .estado-aprobado { background: #48dbfb; color: #333; }
+        .estado-rechazado { background: #ff9ff3; color: #333; }
+        .estado-advertido { background: #ff7675; color: white; }
+        
+        .respuesta-contenido {
+            padding: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+            background: white;
+        }
+        
+        .respuesta-acciones {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .btn-action {
+            border-radius: 20px;
+            font-weight: 500;
+            padding: 8px 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-action:hover {
+            transform: translateY(-2px);
+        }
+        
+        .reportes-info {
+            color: #dc3545;
+            font-weight: 600;
+        }
+        
+        .palabras-detectadas {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        
+        .palabra-sensible {
+            background: #dc3545;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin: 2px;
+            display: inline-block;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-container {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .respuesta-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .respuesta-acciones {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+  

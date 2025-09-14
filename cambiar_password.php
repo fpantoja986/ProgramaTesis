@@ -8,31 +8,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirmarPassword = $_POST['confirmar_password'] ?? '';
 
     if (empty($token) || empty($nuevaPassword)) {
-        $mensaje = "❌ Token y nueva contraseña son requeridos.";
+        $mensaje = "❌ Token y contraseña son requeridos.";
     } elseif ($nuevaPassword !== $confirmarPassword) {
         $mensaje = "❌ Las contraseñas no coinciden.";
     } elseif (strlen($nuevaPassword) < 8) {
         $mensaje = "❌ La contraseña debe tener al menos 8 caracteres.";
     } else {
         // Verificar el token otra vez
-        $stmt = $pdo->prepare("SELECT id FROM usuarios WHERE token_reset = ? AND token_expira > NOW()");
+        $stmt = $pdo->prepare("SELECT id, verificado FROM usuarios WHERE token_reset = ? AND token_expira > NOW()");
         $stmt->execute([$token]);
         $usuario = $stmt->fetch();
 
         if ($usuario) {
             $hashedPassword = password_hash($nuevaPassword, PASSWORD_BCRYPT);
 
-            // Actualizar contraseña y eliminar el token
-            $update = $pdo->prepare("UPDATE usuarios SET password = ?, token_reset = NULL, token_expira = NULL WHERE id = ?");
-            $update->execute([$hashedPassword, $usuario['id']]);
-
-            $mensaje = "✅ Tu contraseña ha sido restablecida correctamente. Ya puedes iniciar sesión.";
+            // Si no está verificado, lo verificamos (cuenta nueva)
+            if ($usuario['verificado'] == 0) {
+                $update = $pdo->prepare("UPDATE usuarios SET password = ?, token_reset = NULL, token_expira = NULL, verificado = 1 WHERE id = ?");
+                $update->execute([$hashedPassword, $usuario['id']]);
+                $mensaje = "✅ Tu cuenta ha sido verificada correctamente y tu contraseña establecida. Ya puedes iniciar sesión.";
+            } else {
+                // Si ya está verificado, solo actualizar contraseña (restablecimiento)
+                $update = $pdo->prepare("UPDATE usuarios SET password = ?, token_reset = NULL, token_expira = NULL WHERE id = ?");
+                $update->execute([$hashedPassword, $usuario['id']]);
+                $mensaje = "✅ Tu contraseña ha sido restablecida correctamente. Ya puedes iniciar sesión.";
+            }
         } else {
             $mensaje = "❌ Token inválido o expirado.";
         }
     }
 } else {
     $token = $_GET['token'] ?? '';
+    
+    // Verificar si el token es válido y determinar el tipo de acción
+    $esVerificacion = false;
+    if (!empty($token)) {
+        $stmt = $pdo->prepare("SELECT verificado FROM usuarios WHERE token_reset = ? AND token_expira > NOW()");
+        $stmt->execute([$token]);
+        $usuario = $stmt->fetch();
+        
+        if ($usuario && $usuario['verificado'] == 0) {
+            $esVerificacion = true;
+        }
+    }
 }
 ?>
 
@@ -41,13 +59,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
     <meta charset="UTF-8">
-    <title>Restablecer Contraseña</title>
+    <title><?php echo isset($esVerificacion) && $esVerificacion ? 'Verificar Cuenta' : 'Restablecer Contraseña'; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 class="text-xl font-bold text-purple-700 text-center mb-4">Restablecer Contraseña</h1>
+        <h1 class="text-xl font-bold text-purple-700 text-center mb-4">
+            <?php echo isset($esVerificacion) && $esVerificacion ? 'Verificar tu Cuenta' : 'Restablecer Contraseña'; ?>
+        </h1>
+
+        <?php if (isset($esVerificacion) && $esVerificacion && !isset($mensaje)): ?>
+            <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="text-blue-800 text-sm text-center">
+                    🎉 ¡Bienvenido! Para completar el registro de tu cuenta, por favor establece tu contraseña.
+                </p>
+            </div>
+        <?php endif; ?>
 
         <?php if (isset($mensaje)): ?>
             <p class="mb-4 text-center text-sm <?php echo strpos($mensaje, '✅') !== false ? 'text-green-600' : 'text-red-600'; ?>">
@@ -60,7 +88,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 mb-2">Nueva Contraseña</label>
+                    <label class="block text-gray-700 mb-2">
+                        <?php echo isset($esVerificacion) && $esVerificacion ? 'Establece tu Contraseña' : 'Nueva Contraseña'; ?>
+                    </label>
                     <input type="password" name="nueva_password" id="passwordInput" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
                     <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
                         <div id="passwordStrength" class="h-2 rounded-full" style="width: 0%"></div>
@@ -74,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
-                    Restablecer Contraseña
+                    <?php echo isset($esVerificacion) && $esVerificacion ? 'Verificar y Establecer Contraseña' : 'Restablecer Contraseña'; ?>
                 </button>
             </form>
         <?php elseif (empty($token)): ?>

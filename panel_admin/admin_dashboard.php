@@ -33,7 +33,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="stylesadmin.css">
 </head>
-
+<?php include 'trabajador_resaltado/popup_trabajador_destacado.php'; ?>
 <body>
     <?php include 'panel_sidebar.php'; ?>
 

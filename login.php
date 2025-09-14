@@ -66,13 +66,17 @@ $errorMsg = isset($_GET['error']) ? htmlspecialchars(urldecode($_GET['error'])) 
     <div id="passwordResetModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
             <h2 class="text-xl font-bold text-center text-purple-700 mb-4">Restablecer Contraseña</h2>
+            
+            <!-- Mensaje de estado -->
+            <div id="resetMessage" class="mb-4 p-3 rounded-lg text-center text-sm hidden"></div>
+            
             <form id="resetPasswordForm">
                 <div class="mb-4">
                     <label class="block text-gray-700 mb-2">Correo Electrónico</label>
                     <input type="email" id="resetEmail" required
                         class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
                 </div>
-                <button type="submit"
+                <button type="submit" id="resetSubmitBtn"
                     class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition duration-300">
                     Enviar Instrucciones
                 </button>
@@ -86,38 +90,141 @@ $errorMsg = isset($_GET['error']) ? htmlspecialchars(urldecode($_GET['error'])) 
     <script>
         function showResetModal() {
             document.getElementById('passwordResetModal').classList.remove('hidden');
+            document.getElementById('resetEmail').focus();
         }
 
         function hideResetModal() {
             document.getElementById('passwordResetModal').classList.add('hidden');
+            document.getElementById('resetPasswordForm').reset();
+            hideResetMessage();
+        }
+
+        function showResetMessage(message, type) {
+            const messageDiv = document.getElementById('resetMessage');
+            messageDiv.textContent = message;
+            messageDiv.className = `mb-4 p-3 rounded-lg text-center text-sm ${
+                type === 'success' 
+                    ? 'bg-green-50 text-green-700 border border-green-200' 
+                    : 'bg-red-50 text-red-700 border border-red-200'
+            }`;
+            messageDiv.classList.remove('hidden');
+        }
+
+        function hideResetMessage() {
+            const messageDiv = document.getElementById('resetMessage');
+            messageDiv.classList.add('hidden');
         }
 
         document.getElementById('resetPasswordForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const email = document.getElementById('resetEmail').value;
+            
+            const email = document.getElementById('resetEmail').value.trim();
+            const submitBtn = document.getElementById('resetSubmitBtn');
+            
+            // Validación básica
+            if (!email) {
+                showResetMessage('Por favor ingresa tu email', 'error');
+                return;
+            }
 
+            // Validar formato de email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showResetMessage('Por favor ingresa un email válido', 'error');
+                return;
+            }
+
+            // Deshabilitar botón y mostrar estado
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+            hideResetMessage();
+
+            // Crear la petición
+            const requestData = {
+                email: email
+            };
+
+            console.log('🚀 Enviando solicitud:', requestData);
+
+            // Primero, probar si el endpoint existe
             fetch('procesar_reset.php', {
+                method: 'OPTIONS'
+            })
+            .then(() => {
+                console.log('✅ Endpoint alcanzable');
+                
+                // Ahora hacer la petición real
+                return fetch('procesar_reset.php', {
                     method: 'POST',
-                    body: JSON.stringify({
-                        email: email
-                    }),
+                    body: JSON.stringify(requestData),
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     }
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('✅ Instrucciones enviadas al correo.');
-                        hideResetModal();
-                    } else {
-                        alert(data.message || '❌ Error al enviar el correo.');
-                    }
-                })
-                .catch(err => {
-                    alert('❌ Error de red o servidor.');
-                    console.error(err);
                 });
+            })
+            .then(response => {
+                console.log('📡 Status:', response.status);
+                console.log('📄 Headers:', [...response.headers.entries()]);
+                
+                // Verificar si es JSON
+                const contentType = response.headers.get('Content-Type') || '';
+                
+                if (!contentType.includes('application/json')) {
+                    console.warn('⚠️ Respuesta no es JSON:', contentType);
+                    return response.text().then(text => {
+                        console.log('📝 Respuesta como texto:', text.substring(0, 500));
+                        throw new Error(`El servidor devolvió: ${text.substring(0, 100)}`);
+                    });
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                console.log('📨 Respuesta JSON:', data);
+                
+                if (data.success) {
+                    showResetMessage(data.message, 'success');
+                    document.getElementById('resetPasswordForm').style.display = 'none';
+                    
+                    // Cerrar modal después de 3 segundos
+                    setTimeout(() => {
+                        hideResetModal();
+                        document.getElementById('resetPasswordForm').style.display = 'block';
+                    }, 3000);
+                } else {
+                    showResetMessage(data.message || 'Error desconocido del servidor', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error completo:', error);
+                console.error('❌ Stack trace:', error.stack);
+                
+                let errorMessage = '❌ ';
+                
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    errorMessage += 'No se puede conectar al servidor. Verifica que XAMPP esté ejecutándose.';
+                } else if (error.message.includes('JSON')) {
+                    errorMessage += 'El servidor devolvió una respuesta inválida.';
+                } else if (error.message.includes('404')) {
+                    errorMessage += 'Archivo procesar_reset.php no encontrado.';
+                } else if (error.message.includes('500')) {
+                    errorMessage += 'Error interno del servidor. Revisa los logs de PHP.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showResetMessage(errorMessage, 'error');
+                
+                // Info adicional para debug
+                console.log('🔍 URL actual:', window.location.href);
+                console.log('🔍 Navegador:', navigator.userAgent);
+            })
+            .finally(() => {
+                // Rehabilitar botón
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Instrucciones';
+            });
         });
     </script>
 </body>

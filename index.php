@@ -43,55 +43,5 @@
             </div>
         </div>
     </div>
-<script>
-function showResetModal() {
-    document.getElementById('passwordResetModal').classList.remove('hidden');
-}
-
-function hideResetModal() {
-    document.getElementById('passwordResetModal').classList.add('hidden');
-}
-
-document.getElementById('resetPasswordForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const email = document.getElementById('resetEmail').value;
-    
-    fetch('procesar_reset.php', {
-        method: 'POST',
-        body: JSON.stringify({email: email}),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.success) {
-            alert('Se ha enviado un correo con instrucciones para restablecer tu contraseña');
-            hideResetModal();
-        } else {
-            alert(data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-});
-</script>
-
-<div id="passwordResetModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
-    <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-        <h2 class="text-xl font-bold text-center text-purple-700 mb-4">Restablecer Contraseña</h2>
-        <form id="resetPasswordForm">
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Correo Electrónico</label>
-                <input type="email" id="resetEmail" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
-            </div>
-            <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition duration-300">Enviar Instrucciones</button>
-        </form>
-        <div class="mt-4 text-center">
-            <button onclick="hideResetModal()" class="text-purple-600 hover:underline">Cancelar</button>
-        </div>
-    </div>
-</div>
 </body>
 </html>

@@ -5,11 +5,10 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'usuario') {
     exit();
 }
 
-include '../panel_admin/panel_sidebar.php';
 include '../db.php';
 
 // Fetch publications created by admins
-$stmt = $pdo->prepare("SELECT * FROM contenidos WHERE creado_por IN (SELECT email FROM usuarios WHERE rol = 'administrador') ORDER BY fecha_creacion DESC");
+$stmt = $pdo->prepare("SELECT * FROM contenidos WHERE id_admin IN (SELECT email FROM usuarios WHERE rol = 'administrador') ORDER BY fecha_creacion DESC");
 $stmt->execute();
 $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -43,10 +42,10 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
     </style>
 </head>
+<? include('trabajador_resaltado/popup_trabajador_destacado.php'); ?>
 <body>
     <div class="container-fluid">
         <div class="row no-gutters">
-            <?php include '../panel_admin/panel_sidebar.php'; ?>
             <main class="col-md-9 content bg-white rounded shadow-sm p-4">
                 <h1>Publicaciones de Administradores</h1>
                 <?php if (count($publicaciones) === 0): ?>

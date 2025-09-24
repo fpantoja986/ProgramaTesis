@@ -15,6 +15,7 @@ if ($currentDir === 'publicaciones' || $currentDir === 'foros' || $currentDir ==
     <title>Panel Administrativo</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<?= $basePath ?>dark-mode.css">
     <style>
         :root {
             --primary-color: #6c5ce7;
@@ -427,5 +428,6 @@ if ($currentDir === 'publicaciones' || $currentDir === 'foros' || $currentDir ==
             }
         });
     </script>
+    <script src="<?= $basePath ?>dark-mode.js"></script>
 </body>
 </html>

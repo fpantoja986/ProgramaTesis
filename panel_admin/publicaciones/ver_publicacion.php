@@ -14,7 +14,14 @@ if (!isset($_GET['id'])) {
 
 $id = intval($_GET['id']);
 
-$stmt = $pdo->prepare("SELECT * FROM contenidos WHERE id = ?");
+$stmt = $pdo->prepare("
+    SELECT 
+        c.*,
+        u.nombre_completo as autor_nombre
+    FROM contenidos c 
+    INNER JOIN usuarios u ON c.id_admin = u.id
+    WHERE c.id = ? AND u.rol = 'administrador'
+");
 $stmt->execute([$id]);
 $publicacion = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -86,7 +93,7 @@ if (!$publicacion) {
                             </div>
                             <div class="meta-item">
                                 <i class="far fa-user mr-1"></i>
-                                <strong>Publicado por:</strong> <?= htmlspecialchars($publicacion['creado_por']) ?>
+                                <strong>Publicado por:</strong> <?= htmlspecialchars($publicacion['autor_nombre']) ?>
                             </div>
                         </div>
 

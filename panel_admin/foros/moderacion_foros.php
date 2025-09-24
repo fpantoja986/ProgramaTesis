@@ -1,9 +1,9 @@
 <?php
-include '../../../db.php';
+include '../../db.php';
 session_start();
 
 if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'administrador') {
-    header('Location: ../../login.php');
+    header('Location: ../login.php');
     exit;
 }
 
@@ -66,13 +66,13 @@ $stats = $stmt_stats->fetch(PDO::FETCH_ASSOC);
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="moderacion.css">
-
+    <link rel="stylesheet" href="moderacion/moderacion.css">
+    <link rel="stylesheet" href="../dark-mode.css">
 
 </head>
-
+    <?php include '../panel_sidebar.php'; ?>
 <body>
-    <?php include '../../panel_sidebar.php'; ?>
+    
 
     <div class="admin-container">
         <div class="page-header">
@@ -260,6 +260,7 @@ $stats = $stmt_stats->fetch(PDO::FETCH_ASSOC);
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="../dark-mode.js"></script>
 
     <script>
         // Aprobar respuesta
@@ -307,7 +308,7 @@ $stats = $stmt_stats->fetch(PDO::FETCH_ASSOC);
             formData.append('accion', accion);
             formData.append('id', id);
 
-            fetch('procesar_moderacion.php', {
+            fetch('moderacion/procesar_moderacion.php', {
                     method: 'POST',
                     body: formData
                 })
@@ -333,7 +334,7 @@ $stats = $stmt_stats->fetch(PDO::FETCH_ASSOC);
             const formData = new FormData(this);
             formData.append('accion', 'advertir');
 
-            fetch('procesar_moderacion.php', {
+            fetch('moderacion/procesar_moderacion.php', {
                     method: 'POST',
                     body: formData
                 })
@@ -355,7 +356,7 @@ $stats = $stmt_stats->fetch(PDO::FETCH_ASSOC);
 
         // Cargar reportes
         function cargarReportes(respuestaId) {
-            fetch(`obtener_reportes.php?respuesta_id=${respuestaId}`)
+            fetch(`moderacion/obtener_reportes.php?respuesta_id=${respuestaId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {

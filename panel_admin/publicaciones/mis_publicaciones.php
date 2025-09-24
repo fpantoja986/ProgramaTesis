@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'administrador') {
     exit;
 }
 
-// Obtener TODAS las publicaciones con información del autor usando la nueva estructura
+// Obtener TODAS las publicaciones con información del autor y sección
 $stmt = $pdo->prepare("
     SELECT 
         c.id,
@@ -16,15 +16,51 @@ $stmt = $pdo->prepare("
         c.contenido_texto,
         c.archivo_path,
         c.fecha_creacion,
+        c.seccion_id,
+        c.orden_seccion,
         u.nombre_completo as autor_nombre,
-        u.id as autor_id
+        u.id as autor_id,
+        s.nombre as seccion_nombre,
+        s.color as seccion_color,
+        s.icono as seccion_icono
     FROM contenidos c 
     INNER JOIN usuarios u ON c.id_admin = u.id
+    LEFT JOIN secciones s ON c.seccion_id = s.id
     WHERE u.rol = 'administrador'
-    ORDER BY c.fecha_creacion DESC
+    ORDER BY 
+        CASE WHEN c.seccion_id IS NULL THEN 1 ELSE 0 END,
+        s.orden ASC,
+        c.orden_seccion ASC,
+        c.fecha_creacion DESC
 ");
 $stmt->execute();
 $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Agrupar publicaciones por sección
+$publicaciones_por_seccion = [];
+$sin_seccion = [];
+
+foreach ($publicaciones as $pub) {
+    if ($pub['seccion_id']) {
+        $publicaciones_por_seccion[$pub['seccion_id']][] = $pub;
+    } else {
+        $sin_seccion[] = $pub;
+    }
+}
+
+// Obtener información de secciones
+$stmt = $pdo->prepare("
+    SELECT 
+        s.*,
+        COUNT(c.id) as total_contenidos
+    FROM secciones s
+    LEFT JOIN contenidos c ON s.id = c.seccion_id
+    WHERE s.visible = 1
+    GROUP BY s.id
+    ORDER BY s.orden ASC
+");
+$stmt->execute();
+$secciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -38,7 +74,60 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="styles_publicaciones.css">
-
+    <link rel="stylesheet" href="../dark-mode.css">
+    <style>
+        .section-container {
+            margin-bottom: 3rem;
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-left: 4px solid #007bff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .section-description {
+            margin: 0.5rem 0 0 0;
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+    </style>
 
 </head>
 
@@ -47,8 +136,18 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <div class="admin-container">
         <div class="page-header">
-            <h1 class="page-title">Todas las Publicaciones <span class="publication-count"><?= count($publicaciones) ?></span>
+            <h1 class="page-title">
+                <i class="fas fa-layer-group mr-2"></i>Publicaciones por Secciones 
+                <span class="publication-count"><?= count($publicaciones) ?></span>
             </h1>
+            <div class="header-actions">
+                <a href="gestionar_secciones.php" class="btn btn-info">
+                    <i class="fas fa-cog mr-2"></i>Gestionar Secciones
+                </a>
+                <a href="asignar_secciones.php" class="btn btn-warning">
+                    <i class="fas fa-tasks mr-2"></i>Asignar Contenidos
+                </a>
+            </div>
         </div>
 
         <?php if (count($publicaciones) === 0): ?>
@@ -60,82 +159,189 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </a>
             </div>
         <?php else: ?>
-            <div class="row">
-                <?php foreach ($publicaciones as $pub): ?>
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 publication-card" tabindex="0" role="button" aria-pressed="false"
-                            data-id="<?= $pub['id'] ?>"
-                            onclick="if(!event.target.closest('.btn, button, a')) { window.location.href='ver_publicacion.php?id=<?= $pub['id'] ?>'; }">
-                            <span class="badge-tipo"><?= ucfirst($pub['tipo']) ?></span>
-
-                            <?php if ($pub['archivo_path']): ?>
-                                <?php if ($pub['tipo'] === 'imagen'): ?>
-                                    <div class="card-img-container">
-                                        <img src="servir_archivo.php?id=<?= $pub['id'] ?>" class="card-img-top" alt="Imagen">
-                                    </div>
-                                <?php elseif ($pub['tipo'] === 'video'): ?>
-                                    <div class="media-icon-container">
-                                        <i class="fas fa-play-circle media-icon"></i>
-                                    </div>
-                                <?php elseif ($pub['tipo'] === 'audio' || $pub['tipo'] === 'podcast'): ?>
-                                    <div class="media-icon-container">
-                                        <i class="fas fa-headphones media-icon"></i>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="media-icon-container">
-                                        <i class="fas fa-file-alt media-icon"></i>
-                                    </div>
-                                <?php endif; ?>
-                            <?php else: ?>
-                                <div class="media-icon-container">
-                                    <i class="fas fa-file-alt media-icon"></i>
-                                </div>
+            <!-- Mostrar secciones con sus contenidos -->
+            <?php foreach ($secciones as $seccion): ?>
+                <?php if (isset($publicaciones_por_seccion[$seccion['id']]) && !empty($publicaciones_por_seccion[$seccion['id']])): ?>
+                    <div class="section-container mb-5">
+                        <div class="section-header" style="border-left-color: <?= $seccion['color'] ?>">
+                            <h3 class="section-title">
+                                <i class="<?= $seccion['icono'] ?> mr-2" style="color: <?= $seccion['color'] ?>"></i>
+                                <?= htmlspecialchars($seccion['nombre']) ?>
+                                <span class="badge badge-light ml-2"><?= count($publicaciones_por_seccion[$seccion['id']]) ?> contenidos</span>
+                            </h3>
+                            <?php if ($seccion['descripcion']): ?>
+                                <p class="section-description"><?= htmlspecialchars($seccion['descripcion']) ?></p>
                             <?php endif; ?>
+                        </div>
+                        
+                        <div class="row">
+                            <?php foreach ($publicaciones_por_seccion[$seccion['id']] as $pub): ?>
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 publication-card" tabindex="0" role="button" aria-pressed="false"
+                                        data-id="<?= $pub['id'] ?>"
+                                        onclick="if(!event.target.closest('.btn, button, a')) { window.location.href='ver_publicacion.php?id=<?= $pub['id'] ?>'; }">
+                                        <span class="badge-tipo"><?= ucfirst($pub['tipo']) ?></span>
 
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    <a
-                                        href="ver_publicacion.php?id=<?= $pub['id'] ?>"><?= htmlspecialchars(mb_strimwidth($pub['titulo'], 0, 60, '...')) ?></a>
-                                </h5>
-                                <p class="card-text">
-                                    <?= nl2br(htmlspecialchars(mb_strimwidth($pub['contenido_texto'], 0, 120, '...'))) ?>
-                                </p>
-                            </div>
+                                        <?php if ($pub['archivo_path']): ?>
+                                            <?php if ($pub['tipo'] === 'imagen'): ?>
+                                                <div class="card-img-container">
+                                                    <img src="servir_archivo.php?id=<?= $pub['id'] ?>" class="card-img-top" alt="Imagen">
+                                                </div>
+                                            <?php elseif ($pub['tipo'] === 'video'): ?>
+                                                <div class="media-icon-container">
+                                                    <i class="fas fa-play-circle media-icon"></i>
+                                                </div>
+                                            <?php elseif ($pub['tipo'] === 'audio' || $pub['tipo'] === 'podcast'): ?>
+                                                <div class="media-icon-container">
+                                                    <i class="fas fa-headphones media-icon"></i>
+                                                </div>
+                                            <?php else: ?>
+                                                <div class="media-icon-container">
+                                                    <i class="fas fa-file-alt media-icon"></i>
+                                                </div>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <div class="media-icon-container">
+                                                <i class="fas fa-file-alt media-icon"></i>
+                                            </div>
+                                        <?php endif; ?>
 
-                            <div class="card-footer">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <small class="publication-date">
-                                            <i class="far fa-calendar-alt mr-1"></i><?= date('d M Y', strtotime($pub['fecha_creacion'])) ?>
-                                        </small>
-                                        <div class="publication-author">
-                                            <span class="author-badge">
-                                                <i class="fas fa-user-shield mr-1"></i><?= htmlspecialchars($pub['autor_nombre']) ?>
-                                            </span>
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                <a href="ver_publicacion.php?id=<?= $pub['id'] ?>"><?= htmlspecialchars(mb_strimwidth($pub['titulo'], 0, 60, '...')) ?></a>
+                                            </h5>
+                                            <p class="card-text">
+                                                <?= nl2br(htmlspecialchars(mb_strimwidth($pub['contenido_texto'], 0, 120, '...'))) ?>
+                                            </p>
+                                        </div>
+
+                                        <div class="card-footer">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <small class="publication-date">
+                                                        <i class="far fa-calendar-alt mr-1"></i><?= date('d M Y', strtotime($pub['fecha_creacion'])) ?>
+                                                    </small>
+                                                    <div class="publication-author">
+                                                        <span class="author-badge">
+                                                            <i class="fas fa-user-shield mr-1"></i><?= htmlspecialchars($pub['autor_nombre']) ?>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="action-buttons">
+                                                    <?php if ($pub['autor_id'] == $_SESSION['user_id']): ?>
+                                                        <!-- Solo el autor puede editar y eliminar -->
+                                                        <button class="btn btn-primary btn-sm btn-editar" data-id="<?= $pub['id'] ?>" title="Editar">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                        <button class="btn btn-danger btn-sm btn-eliminar" data-id="<?= $pub['id'] ?>" title="Eliminar">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    <?php else: ?>
+                                                        <!-- Otros admins solo pueden ver -->
+                                                        <button class="btn btn-secondary btn-sm" onclick="mostrarMensajePermiso()" title="Ver detalles">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="action-buttons">
-                                        <?php if ($pub['autor_id'] == $_SESSION['user_id']): ?>
-                                            <!-- Solo el autor puede editar y eliminar -->
-                                            <button class="btn btn-primary btn-sm btn-editar" data-id="<?= $pub['id'] ?>" title="Editar">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-danger btn-sm btn-eliminar" data-id="<?= $pub['id'] ?>" title="Eliminar">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
+
+            <!-- Mostrar contenidos sin sección -->
+            <?php if (!empty($sin_seccion)): ?>
+                <div class="section-container mb-5">
+                    <div class="section-header" style="border-left-color: #6c757d">
+                        <h3 class="section-title">
+                            <i class="fas fa-question-circle mr-2" style="color: #6c757d"></i>
+                            Sin Sección
+                            <span class="badge badge-warning ml-2"><?= count($sin_seccion) ?> contenidos</span>
+                        </h3>
+                        <p class="section-description">Contenidos que no han sido asignados a ninguna sección</p>
+                    </div>
+                    
+                    <div class="row">
+                        <?php foreach ($sin_seccion as $pub): ?>
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 publication-card" tabindex="0" role="button" aria-pressed="false"
+                                    data-id="<?= $pub['id'] ?>"
+                                    onclick="if(!event.target.closest('.btn, button, a')) { window.location.href='ver_publicacion.php?id=<?= $pub['id'] ?>'; }">
+                                    <span class="badge-tipo"><?= ucfirst($pub['tipo']) ?></span>
+
+                                    <?php if ($pub['archivo_path']): ?>
+                                        <?php if ($pub['tipo'] === 'imagen'): ?>
+                                            <div class="card-img-container">
+                                                <img src="servir_archivo.php?id=<?= $pub['id'] ?>" class="card-img-top" alt="Imagen">
+                                            </div>
+                                        <?php elseif ($pub['tipo'] === 'video'): ?>
+                                            <div class="media-icon-container">
+                                                <i class="fas fa-play-circle media-icon"></i>
+                                            </div>
+                                        <?php elseif ($pub['tipo'] === 'audio' || $pub['tipo'] === 'podcast'): ?>
+                                            <div class="media-icon-container">
+                                                <i class="fas fa-headphones media-icon"></i>
+                                            </div>
                                         <?php else: ?>
-                                            <!-- Otros admins solo pueden ver -->
-                                            <button class="btn btn-secondary btn-sm" onclick="mostrarMensajePermiso()" title="Ver detalles">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
+                                            <div class="media-icon-container">
+                                                <i class="fas fa-file-alt media-icon"></i>
+                                            </div>
                                         <?php endif; ?>
+                                    <?php else: ?>
+                                        <div class="media-icon-container">
+                                            <i class="fas fa-file-alt media-icon"></i>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <a href="ver_publicacion.php?id=<?= $pub['id'] ?>"><?= htmlspecialchars(mb_strimwidth($pub['titulo'], 0, 60, '...')) ?></a>
+                                        </h5>
+                                        <p class="card-text">
+                                            <?= nl2br(htmlspecialchars(mb_strimwidth($pub['contenido_texto'], 0, 120, '...'))) ?>
+                                        </p>
+                                    </div>
+
+                                    <div class="card-footer">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <small class="publication-date">
+                                                    <i class="far fa-calendar-alt mr-1"></i><?= date('d M Y', strtotime($pub['fecha_creacion'])) ?>
+                                                </small>
+                                                <div class="publication-author">
+                                                    <span class="author-badge">
+                                                        <i class="fas fa-user-shield mr-1"></i><?= htmlspecialchars($pub['autor_nombre']) ?>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="action-buttons">
+                                                <?php if ($pub['autor_id'] == $_SESSION['user_id']): ?>
+                                                    <!-- Solo el autor puede editar y eliminar -->
+                                                    <button class="btn btn-primary btn-sm btn-editar" data-id="<?= $pub['id'] ?>" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-danger btn-sm btn-eliminar" data-id="<?= $pub['id'] ?>" title="Eliminar">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                <?php else: ?>
+                                                    <!-- Otros admins solo pueden ver -->
+                                                    <button class="btn btn-secondary btn-sm" onclick="mostrarMensajePermiso()" title="Ver detalles">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
-                <?php endforeach; ?>
-            </div>
+                </div>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 
@@ -197,6 +403,7 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="../dark-mode.js"></script>
     <script>
         // Función para mostrar mensaje de permisos
         function mostrarMensajePermiso() {

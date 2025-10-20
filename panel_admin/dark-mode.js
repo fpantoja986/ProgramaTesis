@@ -172,3 +172,4 @@ function isDarkMode() {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = DarkModeManager;
 }
+

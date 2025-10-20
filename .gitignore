@@ -1,0 +1,24 @@
+# Archivos de configuración sensibles
+email_config.php
+
+# Logs de errores
+error_log
+*.log
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos de backup
+*.bak
+*.backup

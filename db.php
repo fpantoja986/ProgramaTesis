@@ -1,12 +1,13 @@
 <?php
-$host = 'bd-sistemas-2025-umariana-2e29.i.aivencloud.com';
-$port = '26021';
-$db   = 'tesis';       // Tu base de datos en Aiven
-$user = 'avnadmin';    // Usuario de Aiven
-$pass = 'AVNS_D2DYzMWTRMuypFx0WsJ';  // Reemplaza con la contraseña real que te dio Aiven
+$servername = "127.0.0.1";
+$username = "root";
+$password = "";
+$database = "tesis";
+$port = 3307;
+
 $charset = 'utf8mb4';
 
-$dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
+$dsn = "mysql:host=$servername;port=$port;dbname=$database;charset=$charset";
 
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -15,7 +16,7 @@ $options = [
 ];
 
 try {
-    $pdo = new PDO($dsn, $user, $pass, $options);
+    $pdo = new PDO($dsn, $username, $password, $options);
     echo "";
 } catch (\PDOException $e) {
     die("❌ Error de conexión: " . $e->getMessage());

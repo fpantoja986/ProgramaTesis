@@ -44,7 +44,7 @@ try {
     $_SESSION = [
         'user_id' => $user['id'],
         'email' => $user['email'],
-        'nombre' => $user['nombre_completo'],
+        'nombre_completo' => $user['nombre_completo'],
         'rol' => $user['rol'],
         'logged_in' => true,
         'ip' => $_SERVER['REMOTE_ADDR'],

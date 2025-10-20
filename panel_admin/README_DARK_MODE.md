@@ -172,3 +172,9 @@ toggleDarkMode();
 3. No requiere cambios en JavaScript
 
 El sistema está completamente implementado y listo para usar en todo el proyecto. ¡Disfruta del modo oscuro! 🌙
+
+
+
+
+
+

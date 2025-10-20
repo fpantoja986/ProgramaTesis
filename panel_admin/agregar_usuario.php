@@ -10,10 +10,7 @@ ini_set('display_errors', 0);
 
 // Incluir conexión a la base de datos y PHPMailer
 include '../db.php';
-require '../vendor/autoload.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+require '../email_helper.php';
 
 // Solo permitir método POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -66,47 +63,27 @@ try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$nombre, $email, $hash, $rol, $genero, $verificado, $token, $expira]);
 
-    // 5. Enviar correo con PHPMailer
-    $mail = new PHPMailer(true);
-    try {
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'fpantoja986@gmail.com'; // Cambiar si es necesario
-        $mail->Password   = 'mhbz abyv isat goyy';   // Usar variables de entorno en producción
-        $mail->SMTPSecure = 'tls';
-        $mail->Port       = 587;
-
-        $mail->setFrom('fpantoja986@gmail.com', 'Mujeres en Tech');
-        $mail->addAddress($email, $nombre);
-
-        // Enlace para cambiar contraseña
-        $link = "http://localhost/ProgramaTesis/cambiar_password.php?token=$token";
-
-        $mail->isHTML(true);
-        $mail->Subject = 'Tu cuenta ha sido creada - Cambia tu contrasena';
-        $mail->Body    = "
-            <h2>¡Bienvenido/a, $nombre!</h2>
-            <p>Tu cuenta ha sido creada con una contraseña temporal:</p>
-            <p><strong>$passwordTemporal</strong></p>
-            <p>Por seguridad, debes cambiarla haciendo clic en el siguiente enlace:</p>
-            <p><a href='$link' style='color: #007bff;'>Cambiar contraseña</a></p>
-            <p><small>Este enlace expira en 1 hora.</small></p>";
-
-        $mail->AltBody = "Contraseña temporal: $passwordTemporal. Cambia tu contraseña aquí: $link";
-
-        $mail->send();
-
-        // Respuesta de éxito
+    // 5. Enviar correo con contraseña temporal usando el helper
+    $emailResult = EmailHelper::enviarPasswordTemporal($email, $nombre, $passwordTemporal, $token);
+    
+    if ($emailResult['success']) {
+        // Respuesta de éxito completo
         echo json_encode([
             'success' => true,
             'message' => 'Usuario registrado y correo enviado correctamente.'
         ]);
-    } catch (Exception $emailException) {
-        // Si falla el correo pero el usuario se registró
+    } else {
+        // Usuario creado pero correo falló - registrar error para debugging
+        error_log("Error al enviar correo desde panel admin: " . $emailResult['message']);
+        if (isset($emailResult['error_details'])) {
+            error_log("Detalles del error: " . $emailResult['error_details']);
+        }
+        
+        // Respuesta parcial de éxito (usuario creado pero correo falló)
         echo json_encode([
             'success' => true, // Aún es éxito porque el usuario se creó
-            'message' => 'Usuario registrado, pero el correo no pudo enviarse: ' . $emailException->getMessage()
+            'message' => 'Usuario registrado correctamente, pero hubo un problema al enviar el correo. El usuario puede usar la contraseña temporal: ' . $passwordTemporal,
+            'warning' => 'Error de correo: ' . $emailResult['message']
         ]);
     }
 } catch (PDOException $e) {

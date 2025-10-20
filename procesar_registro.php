@@ -1,9 +1,6 @@
 <?php
 require 'db.php'; // Asegúrate de que este archivo contenga la conexión a la base de datos
-require 'vendor/autoload.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+require 'email_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombre = $_POST['nombre_completo'];
@@ -19,32 +16,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("INSERT INTO usuarios (nombre_completo, email, password, token_verificacion, verificado, genero, rol) VALUES (?, ?, ?, ?, 0, ?, ?)");
         $stmt->execute([$nombre, $email, $password, $token, $genero, $rol]);
 
-        // Configurar PHPMailer para Gmail
-        $mail = new PHPMailer(true);
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'fpantoja986@gmail.com'; // Tu correo
-        $mail->Password = 'mhbz abyv isat goyy'; // Clave de aplicación de Gmail
-        $mail->SMTPSecure = 'tls';
-        $mail->Port = 587;
-
-        // Configuración del correo
-        $mail->setFrom('fpantoja986@gmail.com', 'Mujeres en Tech');
-        $mail->addAddress($email);
-
-        $mail->isHTML(true);
-        $mail->Subject = 'Verificacion de correo';
-        $mail->Body    = 'Hola ' . htmlspecialchars($nombre) . ',<br><br>Gracias por registrarte en Mujeres en Tech. Por favor verifica tu correo haciendo clic en el siguiente enlace:<br><br><a href="http://localhost/ProgramaTesis/verificar.php?token=' . $token . '">Verificar correo</a><br><br>Si no te registraste, ignora este mensaje.';
-        $mail->AltBody = 'Por favor verifica tu correo en: http://localhost/ProgramaTesis/verificar.php?token=' . $token;
-
-        $mail->send();
-
-        // Redirigir a la página de registro exitoso
-        header("Location: registro_exitoso.html");
-        exit();
-    } catch (Exception $e) {
-        die("El correo no pudo ser enviado. Error: {$mail->ErrorInfo}");
+        // Enviar correo de verificación usando el helper
+        $emailResult = EmailHelper::enviarVerificacion($email, $nombre, $token);
+        
+        if ($emailResult['success']) {
+            // Redirigir a la página de registro exitoso
+            header("Location: registro_exitoso.html");
+            exit();
+        } else {
+            // Usuario creado pero correo falló
+            error_log("Error al enviar correo de verificación: " . $emailResult['message']);
+            header("Location: registro_exitoso.html?email_error=1");
+            exit();
+        }
+        
     } catch (PDOException $e) {
         die("Error al registrar: " . $e->getMessage());
     }

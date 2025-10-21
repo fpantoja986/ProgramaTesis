@@ -340,6 +340,7 @@ if ($currentDir === 'publicaciones' || $currentDir === 'foros' || $currentDir ==
         <div class="dropdown-menu-custom foros-dropdown" id="forosDropdown" role="region" aria-hidden="true">
             <a href="<?= $basePath ?>foros/gestionar_foros.php"><i class="fas fa-cog"></i> Gestionar Foros</a>
             <a href="<?= $basePath ?>foros/moderacion/moderacion_foros.php"><i class="fas fa-shield-alt"></i> Moderación</a>
+            <a href="<?= $basePath ?>foros/gestionar_reportes.php"><i class="fas fa-flag"></i> Gestionar Reportes</a>
         </div>
 
         <!-- Trabajadores Destacados -->

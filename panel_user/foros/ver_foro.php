@@ -1,9 +1,9 @@
 <?php
-include '../db.php';
+include '../../db.php';
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../login.php');
+    header('Location: ../../login.php');
     exit;
 }
 
@@ -63,10 +63,19 @@ $temas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+        }
+
         .forum-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
         }
 
         .forum-header {
@@ -213,6 +222,27 @@ $temas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             color: #dee2e6;
         }
 
+        .btn-view-topic {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-view-topic:hover {
+            color: white;
+            text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
         .breadcrumb {
             background: transparent;
             padding: 0;
@@ -231,7 +261,15 @@ $temas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </style>
 </head>
 <body>
-    <div class="forum-container">
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <?php include '../user_sidebar.php'; ?>
+        </div>
+        
+        <!-- Contenido principal -->
+        <div class="content-area">
+            <div class="forum-container">
         <!-- Breadcrumb -->
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -317,10 +355,17 @@ $temas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 Sin respuestas
                             <?php endif; ?>
                         </div>
+                        <div class="stat-item">
+                            <a href="ver_tema.php?id=<?= $tema['id'] ?>" class="btn-view-topic">
+                                <i class="fas fa-eye mr-1"></i>Ver Tema
+                            </a>
+                        </div>
                     </div>
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
+            </div>
+        </div>
     </div>
 
     <!-- Modal Nuevo Tema -->

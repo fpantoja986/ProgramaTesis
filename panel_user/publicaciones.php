@@ -30,12 +30,13 @@ try {
         $stmt = $pdo->query("DESCRIBE contenidos");
         $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
         
-        // Contar total de publicaciones
+        // Contar total de publicaciones (manejar tanto id_admin como email)
         $stmt = $pdo->prepare("
             SELECT COUNT(*) 
             FROM contenidos c 
-            INNER JOIN usuarios u ON c.id_admin = u.email 
-            WHERE u.rol = 'administrador'
+            LEFT JOIN usuarios u1 ON c.id_admin = u1.id AND u1.rol = 'administrador'
+            LEFT JOIN usuarios u2 ON c.id_admin = u2.email AND u2.rol = 'administrador'
+            WHERE (u1.id IS NOT NULL OR u2.id IS NOT NULL)
         ");
         $stmt->execute();
         $total_publicaciones = $stmt->fetchColumn();
@@ -44,10 +45,13 @@ try {
         // Obtener publicaciones con información del administrador
         if ($categoria_filtro) {
             $stmt = $pdo->prepare("
-                SELECT c.*, u.nombre_completo as admin_nombre, u.foto_perfil as admin_foto
+                SELECT c.*, 
+                       COALESCE(u1.nombre_completo, u2.nombre_completo) as admin_nombre,
+                       COALESCE(u1.foto_perfil, u2.foto_perfil) as admin_foto
                 FROM contenidos c 
-                INNER JOIN usuarios u ON c.id_admin = u.email 
-                WHERE u.rol = 'administrador' AND c.categoria = :categoria
+                LEFT JOIN usuarios u1 ON c.id_admin = u1.id AND u1.rol = 'administrador'
+                LEFT JOIN usuarios u2 ON c.id_admin = u2.email AND u2.rol = 'administrador'
+                WHERE (u1.id IS NOT NULL OR u2.id IS NOT NULL) AND c.categoria = :categoria
                 ORDER BY c.fecha_creacion DESC 
                 LIMIT :limit OFFSET :offset
             ");
@@ -58,10 +62,13 @@ try {
             $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } else {
             $stmt = $pdo->prepare("
-                SELECT c.*, u.nombre_completo as admin_nombre, u.foto_perfil as admin_foto
+                SELECT c.*, 
+                       COALESCE(u1.nombre_completo, u2.nombre_completo) as admin_nombre,
+                       COALESCE(u1.foto_perfil, u2.foto_perfil) as admin_foto
                 FROM contenidos c 
-                INNER JOIN usuarios u ON c.id_admin = u.email 
-                WHERE u.rol = 'administrador'
+                LEFT JOIN usuarios u1 ON c.id_admin = u1.id AND u1.rol = 'administrador'
+                LEFT JOIN usuarios u2 ON c.id_admin = u2.email AND u2.rol = 'administrador'
+                WHERE (u1.id IS NOT NULL OR u2.id IS NOT NULL)
                 ORDER BY c.fecha_creacion DESC 
                 LIMIT :limit OFFSET :offset
             ");
@@ -300,7 +307,7 @@ try {
                                             <small class="text-muted">Administrador</small>
                                         </div>
                                     </div>
-                                    <a href="../panel_admin/ver_publicacion.php?id=<?= $pub['id'] ?>" class="btn-read">
+                                    <a href="ver_publicacion.php?id=<?= $pub['id'] ?>" class="btn-read">
                                         <i class="fas fa-eye mr-2"></i>Leer Completo
                                     </a>
                                 </div>

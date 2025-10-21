@@ -105,7 +105,7 @@ $usuarios = $stmt->fetchAll();
     </div>
 
     <!-- Modal Agregar Usuario -->
-    <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserLabel" aria-hidden="true">
+    <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserLabel">
         <div class="modal-dialog" role="document">
             <form id="add-user-form" class="modal-content">
                 <div class="modal-header">
@@ -144,7 +144,7 @@ $usuarios = $stmt->fetchAll();
     </div>
 
     <!-- Modal de edición -->
-    <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
         <div class="modal-dialog" role="document">
             <form id="edit-user-form" class="modal-content">
                 <div class="modal-header">

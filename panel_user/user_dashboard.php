@@ -242,7 +242,7 @@ $actividad_reciente = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <?php foreach ($publicaciones_recientes as $pub): ?>
                                         <div class="list-item">
                                             <h6 class="mb-1">
-                                                <a href="../panel_admin/ver_publicacion.php?id=<?= $pub['id'] ?>" class="text-decoration-none">
+                                                <a href="ver_publicacion.php?id=<?= $pub['id'] ?>" class="text-decoration-none">
                                                     <?= htmlspecialchars($pub['titulo']) ?>
                                                 </a>
                                             </h6>

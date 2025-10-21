@@ -1,5 +1,5 @@
 <?php
-session_start();
+// La sesión ya está iniciada en el archivo principal
 if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'usuario') {
     header("Location: ../login.php");
     exit();
@@ -9,6 +9,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
 $user_id = $_SESSION['user_id'] ?? null;
 $user_name = $_SESSION['nombre_completo'] ?? 'Usuario';
 $user_email = $_SESSION['email'] ?? '';
+
+// Detectar nivel de carpeta para rutas dinámicas
+$currentDir = basename(dirname($_SERVER['PHP_SELF']));
+$basePath = '';
+
+if ($currentDir === 'foros') {
+    $basePath = '../';
+}
 
 // Obtener foto de perfil del usuario
 $stmt = $pdo->prepare("SELECT foto_perfil FROM usuarios WHERE id = ?");
@@ -32,31 +40,31 @@ $foto_perfil = $user_data['foto_perfil'] ?? null;
 
     <!-- Navegación Principal -->
     <nav class="nav flex-column px-3">
-        <a href="user_dashboard.php" 
+        <a href="<?= $basePath ?>user_dashboard.php" 
            class="nav-link <?= $current_page === 'user_dashboard.php' ? 'active bg-primary text-white' : 'text-dark' ?> mb-2 rounded">
             <i class="fas fa-tachometer-alt mr-2"></i>
             Dashboard
         </a>
         
-        <a href="publicaciones.php" 
+        <a href="<?= $basePath ?>publicaciones.php" 
            class="nav-link <?= $current_page === 'publicaciones.php' ? 'active bg-primary text-white' : 'text-dark' ?> mb-2 rounded">
             <i class="fas fa-newspaper mr-2"></i>
             Publicaciones
         </a>
         
-        <a href="foros/lista_foros.php" 
+        <a href="<?= $basePath ?>foros/lista_foros.php" 
            class="nav-link <?= strpos($current_page, 'foros') !== false ? 'active bg-primary text-white' : 'text-dark' ?> mb-2 rounded">
             <i class="fas fa-comments mr-2"></i>
             Foros
         </a>
         
-        <a href="mis_temas.php" 
+        <a href="<?= $basePath ?>mis_temas.php" 
            class="nav-link <?= $current_page === 'mis_temas.php' ? 'active bg-primary text-white' : 'text-dark' ?> mb-2 rounded">
             <i class="fas fa-user-edit mr-2"></i>
             Mis Temas
         </a>
         
-        <a href="notificaciones.php" 
+        <a href="<?= $basePath ?>notificaciones.php" 
            class="nav-link <?= $current_page === 'notificaciones.php' ? 'active bg-primary text-white' : 'text-dark' ?> mb-2 rounded">
             <i class="fas fa-bell mr-2"></i>
             Notificaciones
@@ -71,7 +79,7 @@ $foto_perfil = $user_data['foto_perfil'] ?? null;
             <?php endif; ?>
         </a>
         
-        <a href="actividad.php" 
+        <a href="<?= $basePath ?>actividad.php" 
            class="nav-link <?= $current_page === 'actividad.php' ? 'active bg-primary text-white' : 'text-dark' ?> mb-2 rounded">
             <i class="fas fa-history mr-2"></i>
             Mi Actividad
@@ -79,13 +87,13 @@ $foto_perfil = $user_data['foto_perfil'] ?? null;
         
         <hr class="my-3">
         
-        <a href="ajustes_usuario.php" 
+        <a href="<?= $basePath ?>ajustes_usuario.php" 
            class="nav-link <?= $current_page === 'ajustes_usuario.php' ? 'active bg-primary text-white' : 'text-dark' ?> mb-2 rounded">
             <i class="fas fa-cog mr-2"></i>
             Ajustes
         </a>
         
-        <a href="../logout.php" class="nav-link text-danger mb-2 rounded">
+        <a href="<?= $basePath ?>../logout.php" class="nav-link text-danger mb-2 rounded">
             <i class="fas fa-sign-out-alt mr-2"></i>
             Cerrar Sesión
         </a>

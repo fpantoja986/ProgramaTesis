@@ -1,9 +1,9 @@
 <?php
-$servername = "127.0.0.1";
-$username = "root";
-$password = "";
-$database = "tesis";
-$port = 3307;
+$servername = "mysql-basedatostesis.alwaysdata.net";
+$username = "436163";
+$password = "Felipe1704";
+$database = "basedatostesis_2025";
+$port = 3306;
 
 $charset = 'utf8mb4';
 

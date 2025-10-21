@@ -2,7 +2,7 @@
 include '../../db.php';
 session_start();
 
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'administrador') {
     header('Location: ../../login.php');
     exit;
 }
@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 $tema_id = (int)($_GET['id'] ?? 0);
 
 if (!$tema_id) {
-    header('Location: lista_foros.php');
+    header('Location: gestionar_foros.php');
     exit;
 }
 
@@ -32,7 +32,7 @@ $stmt->execute();
 $tema = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$tema) {
-    header('Location: lista_foros.php');
+    header('Location: gestionar_foros.php');
     exit;
 }
 
@@ -82,23 +82,20 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
     foreach ($respuestas as $respuesta) {
         $margen = $nivel * 30; // Margen izquierdo para anidación
         ?>
-        <div class="response-item" style="margin-left: <?= $margen ?>px; <?= $nivel > 0 ? 'border-left: 3px solid #667eea; padding-left: 15px;' : '' ?>">
-            <div class="response-header">
+        <div class="reply-card" style="margin-left: <?= $margen ?>px; <?= $nivel > 0 ? 'border-left: 3px solid #667eea; padding-left: 15px;' : '' ?>">
+            <div class="reply-author">
                 <img src="<?= !empty($respuesta['autor_foto']) ? 'data:image/jpeg;base64,' . $respuesta['autor_foto'] : 'https://ui-avatars.com/api/?name=' . urlencode($respuesta['autor_nombre']) ?>" 
-                     class="response-avatar" alt="Avatar">
-                <div class="response-meta">
-                    <div class="response-author"><?= htmlspecialchars($respuesta['autor_nombre']) ?></div>
-                    <div class="response-date">
-                        <i class="fas fa-clock mr-1"></i>
-                        <?= date('d M Y H:i', strtotime($respuesta['fecha_creacion'])) ?>
-                    </div>
+                     class="reply-avatar" alt="Autor">
+                <div class="reply-author-info">
+                    <h6><?= htmlspecialchars($respuesta['autor_nombre']) ?></h6>
+                    <small><?= date('d M Y H:i', strtotime($respuesta['fecha_creacion'])) ?></small>
                 </div>
-                <div class="response-actions">
+                <div class="reply-actions">
                     <button class="btn-reply-to-response" data-respuesta-id="<?= $respuesta['id'] ?>" data-autor="<?= htmlspecialchars($respuesta['autor_nombre']) ?>">
                         <i class="fas fa-reply mr-1"></i>Responder
                     </button>
                     <?php if ($respuesta['id_usuario'] == $_SESSION['user_id']): ?>
-                        <!-- Botones para respuesta propia -->
+                        <!-- Botones para respuesta propia del admin -->
                         <button class="btn-edit-response" data-respuesta-id="<?= $respuesta['id'] ?>" data-contenido="<?= htmlspecialchars($respuesta['contenido']) ?>">
                             <i class="fas fa-edit mr-1"></i>Editar
                         </button>
@@ -107,13 +104,13 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
                         </button>
                     <?php else: ?>
                         <!-- Botón de reportar para respuestas de otros -->
-                        <button class="btn-report-response" data-respuesta-id="<?= $respuesta['id'] ?>" data-autor="<?= htmlspecialchars($respuesta['autor_nombre']) ?>" data-contenido="<?= htmlspecialchars(substr($respuesta['contenido'], 0, 100)) ?>">
+                        <button class="btn-report-response-admin" data-respuesta-id="<?= $respuesta['id'] ?>" data-autor="<?= htmlspecialchars($respuesta['autor_nombre']) ?>" data-contenido="<?= htmlspecialchars(substr($respuesta['contenido'], 0, 100)) ?>">
                             <i class="fas fa-flag mr-1"></i>Reportar
                         </button>
                     <?php endif; ?>
                 </div>
             </div>
-            <div class="response-content">
+            <div class="reply-content">
                 <?= nl2br(htmlspecialchars($respuesta['contenido'])) ?>
             </div>
         </div>
@@ -134,143 +131,249 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <link rel="stylesheet" href="../stylesadmin.css">
+    
     <style>
         body {
             background-color: #f8f9fc;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
-        .main-container {
-            display: flex;
+        .admin-container {
+            margin-left: 250px;
+            padding: 20px;
             min-height: 100vh;
         }
-
-        .content-area {
-            flex: 1;
-            padding: 20px;
-        }
-
         .topic-container {
             max-width: 1200px;
             margin: 0 auto;
         }
-
+        .breadcrumb {
+            background: white;
+            border-radius: 10px;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            color: #764ba2;
+        }
         .topic-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 25px;
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
             box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
         }
-
         .topic-title {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-
         .topic-meta {
-            font-size: 1rem;
-            opacity: 0.9;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            margin-top: 20px;
         }
-
         .topic-content {
             background: white;
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
             margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
         }
-
         .author-info {
             display: flex;
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 20px;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 2px solid #f8f9fa;
         }
-
         .author-avatar {
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            margin-right: 15px;
             object-fit: cover;
+            margin-right: 20px;
+            border: 3px solid #667eea;
         }
-
-        .author-details h6 {
-            margin-bottom: 5px;
+        .author-details h5 {
+            margin: 0;
             color: #495057;
+            font-weight: 600;
         }
-
         .author-details small {
             color: #6c757d;
         }
-
-        .topic-text {
-            line-height: 1.6;
-            color: #495057;
+        .content-text {
             font-size: 1.1rem;
+            line-height: 1.8;
+            color: #495057;
+            margin-bottom: 20px;
         }
-
-        .responses-section {
+        .topic-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .btn-reply {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-reply:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-back {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .btn-back:hover {
+            color: white;
+            text-decoration: none;
+            background: #5a6268;
+        }
+        .replies-section {
             background: white;
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        .replies-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f8f9fa;
         }
-
-        .response-item {
-            border-bottom: 1px solid #f8f9fa;
-            padding: 25px 0;
+        .replies-count {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #495057;
         }
-
-        .response-item:last-child {
-            border-bottom: none;
+        .reply-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
         }
-
-        .response-header {
+        .reply-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .reply-author {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
         }
-
-        .response-avatar {
-            width: 45px;
-            height: 45px;
+        .reply-avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            margin-right: 12px;
             object-fit: cover;
+            margin-right: 15px;
+            border: 2px solid #667eea;
         }
-
-        .response-meta {
-            flex: 1;
-        }
-
-        .response-author {
-            font-weight: 600;
+        .reply-author-info h6 {
+            margin: 0;
             color: #495057;
-            margin-bottom: 3px;
+            font-weight: 600;
         }
-
-        .response-date {
-            font-size: 0.85rem;
+        .reply-author-info small {
             color: #6c757d;
         }
-
-        .response-content {
-            color: #495057;
+        .reply-content {
+            font-size: 1rem;
             line-height: 1.6;
-            margin-left: 57px;
+            color: #495057;
+            margin-bottom: 15px;
         }
-
-        .response-actions {
+        .reply-meta {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .empty-replies {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+        .empty-replies i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #dee2e6;
+        }
+        .modal-content {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .modal-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+        }
+        .modal-body {
+            padding: 30px;
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .modal-footer {
+            border: none;
+            padding: 20px 30px;
+            background: #f8f9fa;
+        }
+        .status-badges {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-pinned {
+            background: #28a745;
+            color: white;
+        }
+        .status-closed {
+            background: #dc3545;
+            color: white;
+        }
+        .reply-actions {
             margin-left: auto;
         }
-
         .btn-reply-to-response {
             background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
@@ -282,13 +385,11 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
             transition: all 0.3s ease;
             cursor: pointer;
         }
-
         .btn-reply-to-response:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
-
-        .btn-report-response {
+        .btn-report-response-admin {
             background: linear-gradient(45deg, #dc3545, #c82333);
             color: white;
             border: none;
@@ -300,12 +401,10 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
             cursor: pointer;
             margin-left: 8px;
         }
-
-        .btn-report-response:hover {
+        .btn-report-response-admin:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
         }
-
         .btn-edit-response {
             background: linear-gradient(45deg, #28a745, #20c997);
             color: white;
@@ -318,12 +417,10 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
             cursor: pointer;
             margin-left: 8px;
         }
-
         .btn-edit-response:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
         }
-
         .btn-delete-response {
             background: linear-gradient(45deg, #dc3545, #c82333);
             color: white;
@@ -336,198 +433,128 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
             cursor: pointer;
             margin-left: 8px;
         }
-
         .btn-delete-response:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
         }
-
-        .new-response-section {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        .btn-reply {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border: none;
-            border-radius: 25px;
-            color: white;
-            padding: 12px 25px;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-reply:hover {
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .breadcrumb {
-            background: transparent;
-            padding: 0;
-            margin-bottom: 20px;
-        }
-
-        .breadcrumb-item + .breadcrumb-item::before {
-            content: ">";
-            color: #6c757d;
-        }
-
-        .breadcrumb a {
-            color: #667eea;
-            text-decoration: none;
-        }
-
-        .status-badges {
-            margin-bottom: 15px;
-        }
-
-        .badge-status {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-right: 10px;
-        }
-
-        .badge-pinned {
-            background: #ffc107;
-            color: #212529;
-        }
-
-        .badge-closed {
-            background: #6c757d;
-            color: white;
-        }
-
-        .empty-responses {
-            text-align: center;
-            padding: 40px 20px;
-            color: #6c757d;
-        }
-
-        .empty-responses i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: #dee2e6;
-        }
     </style>
 </head>
 <body>
-    <div class="main-container">
-        <!-- Sidebar -->
-        <div class="col-md-3">
-            <?php include '../user_sidebar.php'; ?>
-        </div>
-        
-        <!-- Contenido principal -->
-        <div class="content-area">
-            <div class="topic-container">
-        <!-- Breadcrumb -->
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="lista_foros.php"><i class="fas fa-home"></i> Foros</a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="ver_foro.php?id=<?= $tema['foro_id'] ?>"><?= htmlspecialchars($tema['foro_titulo']) ?></a>
-                </li>
-                <li class="breadcrumb-item active"><?= htmlspecialchars($tema['titulo']) ?></li>
-            </ol>
-        </nav>
+    <?php include '../panel_sidebar.php'; ?>
 
-        <!-- Header del Tema -->
-        <div class="topic-header">
-            <div class="status-badges">
-                <?php if ($tema['fijado']): ?>
-                    <span class="badge-status badge-pinned">
-                        <i class="fas fa-thumbtack"></i> Fijado
-                    </span>
+    <div class="admin-container">
+        <div class="topic-container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="gestionar_foros.php"><i class="fas fa-home"></i> Foros</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="ver_foro.php?id=<?= $tema['foro_id'] ?>"><?= htmlspecialchars($tema['foro_titulo']) ?></a>
+                    </li>
+                    <li class="breadcrumb-item active"><?= htmlspecialchars($tema['titulo']) ?></li>
+                </ol>
+            </nav>
+
+            <!-- Header del Tema -->
+            <div class="topic-header">
+                <div class="status-badges">
+                    <?php if ($tema['fijado']): ?>
+                        <span class="status-badge status-pinned">
+                            <i class="fas fa-thumbtack mr-1"></i>Fijado
+                        </span>
+                    <?php endif; ?>
+                    <?php if ($tema['cerrado']): ?>
+                        <span class="status-badge status-closed">
+                            <i class="fas fa-lock mr-1"></i>Cerrado
+                        </span>
+                    <?php endif; ?>
+                </div>
+                <h1 class="topic-title"><?= htmlspecialchars($tema['titulo']) ?></h1>
+                <div class="topic-meta">
+                    <i class="fas fa-user mr-2"></i>Por <?= htmlspecialchars($tema['autor_nombre']) ?>
+                    <span class="mx-2">•</span>
+                    <i class="fas fa-calendar mr-2"></i><?= date('d M Y H:i', strtotime($tema['fecha_creacion'])) ?>
+                    <span class="mx-2">•</span>
+                    <i class="fas fa-comments mr-2"></i><?= $total_respuestas ?> respuestas
+                </div>
+            </div>
+
+            <!-- Contenido del Tema -->
+            <div class="topic-content">
+                <div class="author-info">
+                    <img src="<?= !empty($tema['autor_foto']) ? 'data:image/jpeg;base64,' . $tema['autor_foto'] : 'https://ui-avatars.com/api/?name=' . urlencode($tema['autor_nombre']) ?>" 
+                         class="author-avatar" alt="Autor">
+                    <div class="author-details">
+                        <h5><?= htmlspecialchars($tema['autor_nombre']) ?></h5>
+                        <small>Autor del tema</small>
+                    </div>
+                </div>
+                <div class="content-text">
+                    <?= nl2br(htmlspecialchars($tema['contenido'])) ?>
+                </div>
+                <div class="topic-actions">
+                    <a href="ver_foro.php?id=<?= $tema['foro_id'] ?>" class="btn-back">
+                        <i class="fas fa-arrow-left mr-2"></i>Volver al Foro
+                    </a>
+                    <?php if (!$tema['cerrado']): ?>
+                        <button class="btn-reply" data-toggle="modal" data-target="#modalRespuesta">
+                            <i class="fas fa-reply mr-2"></i>Responder
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Respuestas -->
+            <div class="replies-section">
+                <div class="replies-header">
+                    <h3 class="replies-count">
+                        <i class="fas fa-comments mr-2"></i>Respuestas (<?= $total_respuestas ?>)
+                    </h3>
+                </div>
+
+                <?php if (empty($respuestas)): ?>
+                    <div class="empty-replies">
+                        <i class="fas fa-comment-slash"></i>
+                        <h5>No hay respuestas aún</h5>
+                        <p>¡Sé el primero en responder a este tema!</p>
+                    </div>
+                <?php else: ?>
+                    <?php mostrarRespuestasAnidadas($respuestas); ?>
                 <?php endif; ?>
-                <?php if ($tema['cerrado']): ?>
-                    <span class="badge-status badge-closed">
-                        <i class="fas fa-lock"></i> Cerrado
-                    </span>
-                <?php endif; ?>
-            </div>
-            <h1 class="topic-title"><?= htmlspecialchars($tema['titulo']) ?></h1>
-            <div class="topic-meta">
-                <i class="fas fa-user mr-2"></i>Por <?= htmlspecialchars($tema['autor_nombre']) ?>
-                <span class="mx-2">•</span>
-                <i class="fas fa-calendar mr-2"></i><?= date('d M Y H:i', strtotime($tema['fecha_creacion'])) ?>
-                <span class="mx-2">•</span>
-                <i class="fas fa-comments mr-2"></i><?= $total_respuestas ?> respuesta<?= $total_respuestas !== 1 ? 's' : '' ?>
             </div>
         </div>
+    </div>
 
-        <!-- Contenido del Tema -->
-        <div class="topic-content">
-            <div class="author-info">
-                <img src="<?= !empty($tema['autor_foto']) ? 'data:image/jpeg;base64,' . $tema['autor_foto'] : 'https://ui-avatars.com/api/?name=' . urlencode($tema['autor_nombre']) ?>" 
-                     class="author-avatar" alt="Avatar">
-                <div class="author-details">
-                    <h6><?= htmlspecialchars($tema['autor_nombre']) ?></h6>
-                    <small>
-                        <i class="fas fa-calendar mr-1"></i>
-                        <?= date('d M Y H:i', strtotime($tema['fecha_creacion'])) ?>
-                    </small>
-                </div>
-            </div>
-            <div class="topic-text">
-                <?= nl2br(htmlspecialchars($tema['contenido'])) ?>
-            </div>
-        </div>
-
-        <!-- Respuestas -->
-        <div class="responses-section">
-            <h3 class="mb-4">
-                <i class="fas fa-reply mr-2"></i>
-                Respuestas (<?= $total_respuestas ?>)
-            </h3>
-
-            <?php if (empty($respuestas)): ?>
-                <div class="empty-responses">
-                    <i class="fas fa-comments"></i>
-                    <h4>No hay respuestas aún</h4>
-                    <p>¡Sé el primero en responder a este tema!</p>
-                </div>
-            <?php else: ?>
-                <?php mostrarRespuestasAnidadas($respuestas); ?>
-            <?php endif; ?>
-        </div>
-
-        <!-- Nueva Respuesta -->
-        <?php if (!$tema['cerrado']): ?>
-        <div class="new-response-section">
-            <h4 class="mb-4">
-                <i class="fas fa-plus-circle mr-2"></i>
-                Responder al Tema
-            </h4>
-            <form id="formNuevaRespuesta">
-                <input type="hidden" name="id_tema" value="<?= $tema_id ?>">
-                <div class="form-group">
-                    <label for="contenido_respuesta">Tu Respuesta</label>
-                    <textarea class="form-control" id="contenido_respuesta" name="contenido" rows="6" required 
-                              placeholder="Escribe tu respuesta aquí..."></textarea>
-                </div>
-                <div class="text-right">
-                    <button type="submit" class="btn btn-reply">
-                        <i class="fas fa-paper-plane mr-2"></i>Enviar Respuesta
+    <!-- Modal Nueva Respuesta -->
+    <div class="modal fade" id="modalRespuesta" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-reply mr-2"></i>Responder al Tema
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
                     </button>
                 </div>
-            </form>
-        </div>
-        <?php else: ?>
-        <div class="new-response-section text-center">
-            <div class="alert alert-warning">
-                <i class="fas fa-lock mr-2"></i>
-                Este tema está cerrado. No se pueden agregar nuevas respuestas.
-            </div>
-        </div>
-        <?php endif; ?>
+                <form id="formRespuesta">
+                    <div class="modal-body">
+                        <input type="hidden" name="id_tema" value="<?= $tema_id ?>">
+                        <div class="form-group">
+                            <label for="contenido_respuesta">Tu respuesta</label>
+                            <textarea class="form-control" id="contenido_respuesta" name="contenido" rows="6" required
+                                placeholder="Escribe tu respuesta aquí..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white;">
+                            <i class="fas fa-paper-plane mr-2"></i>Publicar Respuesta
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -536,7 +563,7 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
     <div class="modal fade" id="modalRespuestaRespuesta" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
-                <div class="modal-header" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white;">
+                <div class="modal-header">
                     <h5 class="modal-title">
                         <i class="fas fa-reply mr-2"></i>Responder a <span id="autorRespuesta"></span>
                     </h5>
@@ -565,28 +592,32 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
         </div>
     </div>
 
-    <!-- Modal Reportar Respuesta -->
-    <div class="modal fade" id="modalReportarRespuesta" tabindex="-1" role="dialog">
+    <!-- Modal Reportar Respuesta (Admin) -->
+    <div class="modal fade" id="modalReportarRespuestaAdmin" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header" style="background: linear-gradient(45deg, #dc3545, #c82333); color: white;">
                     <h5 class="modal-title">
-                        <i class="fas fa-flag mr-2"></i>Reportar Respuesta
+                        <i class="fas fa-flag mr-2"></i>Reportar Respuesta (Administrador)
                     </h5>
                     <button type="button" class="close text-white" data-dismiss="modal">
                         <span>&times;</span>
                     </button>
                 </div>
-                <form id="formReportarRespuesta">
+                <form id="formReportarRespuestaAdmin">
                     <div class="modal-body">
-                        <input type="hidden" name="id_respuesta" id="idRespuestaReportar">
+                        <input type="hidden" name="id_respuesta" id="idRespuestaReportarAdmin">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            <strong>Como administrador, este reporte se enviará directamente al usuario con tu mensaje personalizado.</strong>
+                        </div>
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle mr-2"></i>
-                            <strong>Respuesta a reportar:</strong> <span id="contenidoReportar"></span>
+                            <strong>Respuesta a reportar:</strong> <span id="contenidoReportarAdmin"></span>
                         </div>
                         <div class="form-group">
-                            <label for="motivo_reporte">Motivo del reporte</label>
-                            <select class="form-control" id="motivo_reporte" name="motivo" required>
+                            <label for="motivo_reporte_admin">Motivo del reporte</label>
+                            <select class="form-control" id="motivo_reporte_admin" name="motivo" required>
                                 <option value="">Selecciona un motivo</option>
                                 <option value="spam">Spam o contenido promocional</option>
                                 <option value="inapropiado">Contenido inapropiado u ofensivo</option>
@@ -597,15 +628,21 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="descripcion_reporte">Descripción adicional (opcional)</label>
-                            <textarea class="form-control" id="descripcion_reporte" name="descripcion" rows="4" 
-                                placeholder="Proporciona más detalles sobre el problema..."></textarea>
+                            <label for="mensaje_admin">Mensaje del administrador <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="mensaje_admin" name="mensaje_admin" rows="4" required
+                                placeholder="Escribe el mensaje que recibirá el usuario..."></textarea>
+                            <small class="form-text text-muted">Este mensaje se enviará directamente al usuario reportado.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="descripcion_reporte_admin">Descripción adicional (opcional)</label>
+                            <textarea class="form-control" id="descripcion_reporte_admin" name="descripcion" rows="3" 
+                                placeholder="Información adicional para el registro interno..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn" style="background: linear-gradient(45deg, #dc3545, #c82333); color: white;">
-                            <i class="fas fa-flag mr-2"></i>Enviar Reporte
+                            <i class="fas fa-flag mr-2"></i>Enviar Reporte al Usuario
                         </button>
                     </div>
                 </form>
@@ -613,8 +650,8 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
         </div>
     </div>
 
-    <!-- Modal Editar Respuesta -->
-    <div class="modal fade" id="modalEditarRespuesta" tabindex="-1" role="dialog">
+    <!-- Modal Editar Respuesta (Admin) -->
+    <div class="modal fade" id="modalEditarRespuestaAdmin" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header" style="background: linear-gradient(45deg, #28a745, #20c997); color: white;">
@@ -625,12 +662,12 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
                         <span>&times;</span>
                     </button>
                 </div>
-                <form id="formEditarRespuesta">
+                <form id="formEditarRespuestaAdmin">
                     <div class="modal-body">
-                        <input type="hidden" name="id_respuesta" id="idRespuestaEditar">
+                        <input type="hidden" name="id_respuesta" id="idRespuestaEditarAdmin">
                         <div class="form-group">
-                            <label for="contenido_editar">Contenido de la respuesta</label>
-                            <textarea class="form-control" id="contenido_editar" name="contenido" rows="6" required
+                            <label for="contenido_editar_admin">Contenido de la respuesta</label>
+                            <textarea class="form-control" id="contenido_editar_admin" name="contenido" rows="6" required
                                 placeholder="Escribe tu respuesta aquí..."></textarea>
                         </div>
                     </div>
@@ -650,32 +687,33 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
 
     <script>
         // Crear nueva respuesta
-        $('#formNuevaRespuesta').on('submit', function(e) {
+        $('#formRespuesta').on('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
-            
+
             fetch('crear_respuesta.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        title: '¡Respuesta Enviada!',
-                        text: 'Tu respuesta ha sido publicada exitosamente.',
-                        icon: 'success',
-                        timer: 2000
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire('Error', data.error || 'Error al enviar la respuesta', 'error');
-                }
-            })
-            .catch(() => {
-                Swal.fire('Error', 'Error de conexión', 'error');
-            });
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        $('#modalRespuesta').modal('hide');
+                        Swal.fire({
+                            title: '¡Respuesta Publicada!',
+                            text: 'Tu respuesta ha sido publicada exitosamente.',
+                            icon: 'success',
+                            timer: 2000
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', data.error || 'Error al publicar la respuesta', 'error');
+                    }
+                })
+                .catch(() => {
+                    Swal.fire('Error', 'Error de conexión', 'error');
+                });
         });
 
         // Manejar botones de responder a respuesta
@@ -718,32 +756,32 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
             });
         });
 
-        // Manejar botones de reportar respuesta
-        $(document).on('click', '.btn-report-response', function() {
+        // Manejar botones de reportar respuesta (Admin)
+        $(document).on('click', '.btn-report-response-admin', function() {
             const respuestaId = $(this).data('respuesta-id');
             const contenido = $(this).data('contenido');
             
-            $('#idRespuestaReportar').val(respuestaId);
-            $('#contenidoReportar').text(contenido + '...');
-            $('#modalReportarRespuesta').modal('show');
+            $('#idRespuestaReportarAdmin').val(respuestaId);
+            $('#contenidoReportarAdmin').text(contenido + '...');
+            $('#modalReportarRespuestaAdmin').modal('show');
         });
 
-        // Enviar reporte de respuesta
-        $('#formReportarRespuesta').on('submit', function(e) {
+        // Enviar reporte de respuesta (Admin)
+        $('#formReportarRespuestaAdmin').on('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
             
-            fetch('reportar_respuesta.php', {
+            fetch('../reportar_respuesta.php', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    $('#modalReportarRespuesta').modal('hide');
+                    $('#modalReportarRespuestaAdmin').modal('hide');
                     Swal.fire({
                         title: '¡Reporte Enviado!',
-                        text: 'Tu reporte ha sido enviado a los administradores. Gracias por mantener la comunidad segura.',
+                        text: 'El reporte ha sido enviado directamente al usuario con tu mensaje personalizado.',
                         icon: 'success',
                         timer: 3000
                     });
@@ -756,29 +794,29 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
             });
         });
 
-        // Manejar botones de editar respuesta
+        // Manejar botones de editar respuesta (Admin)
         $(document).on('click', '.btn-edit-response', function() {
             const respuestaId = $(this).data('respuesta-id');
             const contenido = $(this).data('contenido');
             
-            $('#idRespuestaEditar').val(respuestaId);
-            $('#contenido_editar').val(contenido);
-            $('#modalEditarRespuesta').modal('show');
+            $('#idRespuestaEditarAdmin').val(respuestaId);
+            $('#contenido_editar_admin').val(contenido);
+            $('#modalEditarRespuestaAdmin').modal('show');
         });
 
-        // Editar respuesta
-        $('#formEditarRespuesta').on('submit', function(e) {
+        // Editar respuesta (Admin)
+        $('#formEditarRespuestaAdmin').on('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
             
-            fetch('editar_respuesta.php', {
+            fetch('../editar_respuesta.php', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    $('#modalEditarRespuesta').modal('hide');
+                    $('#modalEditarRespuestaAdmin').modal('hide');
                     Swal.fire({
                         title: '¡Respuesta Actualizada!',
                         text: 'Tu respuesta ha sido actualizada exitosamente.',
@@ -796,7 +834,7 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
             });
         });
 
-        // Manejar botones de eliminar respuesta
+        // Manejar botones de eliminar respuesta (Admin)
         $(document).on('click', '.btn-delete-response', function() {
             const respuestaId = $(this).data('respuesta-id');
             const autor = $(this).data('autor');
@@ -811,7 +849,7 @@ function mostrarRespuestasAnidadas($respuestas, $nivel = 0) {
                 confirmButtonColor: '#dc3545'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch('eliminar_respuesta.php', {
+                    fetch('../eliminar_respuesta.php', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',

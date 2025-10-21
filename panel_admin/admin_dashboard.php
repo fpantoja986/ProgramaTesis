@@ -79,7 +79,7 @@ try {
             <h1 class="page-title">
                 <i class="fas fa-tachometer-alt mr-2"></i>Dashboard Administrador
             </h1>
-            <p class="page-subtitle">Bienvenido, <?php echo htmlspecialchars($_SESSION['nombre']); ?></p>
+            <p class="page-subtitle">Bienvenido, <?php echo htmlspecialchars($_SESSION['nombre_completo']); ?></p>
         </div>
 
         <?php if (isset($error_message)): ?>

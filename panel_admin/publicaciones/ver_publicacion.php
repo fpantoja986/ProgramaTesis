@@ -2,10 +2,12 @@
 include '../../db.php';
 session_start();
 
-if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'administrador') {
-    header('Location: ../login.php');
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../../login.php');
     exit;
 }
+
+$isAdmin = isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador';
 
 if (!isset($_GET['id'])) {
     echo '<div class="container mt-4"><div class="alert alert-warning" role="alert">ID de publicación no especificado.</div></div>';
@@ -17,10 +19,11 @@ $id = intval($_GET['id']);
 $stmt = $pdo->prepare("
     SELECT 
         c.*,
-        u.nombre_completo as autor_nombre
+        COALESCE(u1.nombre_completo, u2.nombre_completo) as autor_nombre
     FROM contenidos c 
-    INNER JOIN usuarios u ON c.id_admin = u.id
-    WHERE c.id = ? AND u.rol = 'administrador'
+    LEFT JOIN usuarios u1 ON c.id_admin = u1.id AND u1.rol = 'administrador'
+    LEFT JOIN usuarios u2 ON c.id_admin = u2.email AND u2.rol = 'administrador'
+    WHERE c.id = ?
 ");
 $stmt->execute([$id]);
 $publicacion = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -47,8 +50,12 @@ if (!$publicacion) {
 <body>
     <div class="container-fluid">
         <div class="row no-gutters">
-            <?php include '../panel_sidebar.php'; ?>
-            <main class="col-md-9 content">
+            <?php if ($isAdmin): ?>
+                <?php include '../panel_sidebar.php'; ?>
+                <main class="col-md-9 content">
+            <?php else: ?>
+                <main class="col-md-12 content">
+            <?php endif; ?>
                 <div class="publicacion-card">
                     <div class="publicacion-header">
                         <span class="badge-tipo"><?= htmlspecialchars($publicacion['tipo']) ?></span>

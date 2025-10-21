@@ -4,7 +4,7 @@ session_start();
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'administrador') {
     http_response_code(403);
     echo json_encode(['error' => 'No autorizado']);
     exit;

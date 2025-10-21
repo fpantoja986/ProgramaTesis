@@ -4,7 +4,7 @@ session_start();
 
 // Verificar sesión
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['rol']) || $_SESSION['rol'] !== 'usuario') {
-    header('Location: ../login.php');
+    header('Location: ../../login.php');
     exit;
 }
 

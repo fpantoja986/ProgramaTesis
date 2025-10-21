@@ -2,11 +2,11 @@
 // Archivo de diagnóstico para el sistema de foros
 session_start();
 if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'usuario') {
-    header("Location: ../login.php");
+    header("Location: ../../login.php");
     exit();
 }
 
-include '../db.php';
+include '../../db.php';
 
 echo "<h2>Diagnóstico del Sistema de Foros</h2>";
 

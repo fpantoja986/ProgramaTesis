@@ -3,11 +3,32 @@ session_start();
 
 // Verificación básica de sesión
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['rol']) || $_SESSION['rol'] !== 'usuario') {
-    header('Location: ../login.php');
+    header('Location: ../../login.php');
     exit;
 }
 
+include '../../db.php';
+
+$user_id = $_SESSION['user_id'] ?? null;
 $user_name = $_SESSION['nombre_completo'] ?? 'Usuario';
+
+// Obtener foros de la base de datos
+try {
+    $stmt = $pdo->query("
+        SELECT f.*, u.nombre_completo as creador_nombre,
+               (SELECT COUNT(*) FROM temas_foro tf WHERE tf.id_foro = f.id) as total_temas,
+               (SELECT COUNT(*) FROM respuestas_foro rf 
+                INNER JOIN temas_foro tf ON rf.id_tema = tf.id 
+                WHERE tf.id_foro = f.id) as total_respuestas
+        FROM foros f 
+        LEFT JOIN usuarios u ON f.id_admin = u.id 
+        ORDER BY f.fecha_creacion DESC
+    ");
+    $foros = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $foros = [];
+    $error_message = "Error al cargar foros: " . $e->getMessage();
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -19,20 +40,29 @@ $user_name = $_SESSION['nombre_completo'] ?? 'Usuario';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background-color: #f8f9fc;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            background-color: #f8f9fc;
         }
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
         }
         .header {
-            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            margin-bottom: 40px;
-            padding: 40px 20px;
+            margin-bottom: 30px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
         }
         .title {
             font-size: 3rem;
@@ -107,15 +137,15 @@ $user_name = $_SESSION['nombre_completo'] ?? 'Usuario';
             transform: scale(1.05);
         }
         .nav-bar {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 15px 0;
+            background: white;
+            padding: 15px 20px;
             border-radius: 15px;
             margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
             text-align: center;
         }
         .nav-link {
-            color: white;
+            color: #495057;
             text-decoration: none;
             padding: 10px 20px;
             border-radius: 20px;
@@ -124,14 +154,22 @@ $user_name = $_SESSION['nombre_completo'] ?? 'Usuario';
             margin: 0 10px;
         }
         .nav-link:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+            background: #f8f9fa;
+            color: #495057;
             text-decoration: none;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <?php include '../user_sidebar.php'; ?>
+        </div>
+        
+        <!-- Contenido principal -->
+        <div class="content-area">
+            <div class="container">
         <!-- Header -->
         <div class="header">
             <h1 class="title">
@@ -139,92 +177,77 @@ $user_name = $_SESSION['nombre_completo'] ?? 'Usuario';
                 Foros de Discusión
             </h1>
             <p class="subtitle">Conecta, discute y comparte ideas con la comunidad</p>
-            <div class="welcome">
-                <i class="fas fa-user-circle mr-2"></i>
-                Bienvenido, <?= htmlspecialchars($user_name) ?>
-            </div>
+            
         </div>
 
-        <!-- Navegación -->
-        <div class="nav-bar">
-            <a href="lista_foros.php" class="nav-link">
-                <i class="fas fa-home mr-2"></i>Todos los Foros
-            </a>
-            <a href="../mis_temas.php" class="nav-link">
-                <i class="fas fa-user-edit mr-2"></i>Mis Temas
-            </a>
-            <a href="../user_dashboard.php" class="nav-link">
-                <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
-            </a>
-        </div>
-
+       
         <!-- Foros -->
-        <div class="forum-card">
-            <div class="forum-header">
-                <div class="forum-icon">
-                    <i class="fas fa-comments"></i>
-                </div>
-                <h3 class="forum-title">Foro General</h3>
-                <div class="forum-creator">
-                    <i class="fas fa-user mr-1"></i>
-                    Por Administrador
-                </div>
+        <?php if (isset($error_message)): ?>
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <?= htmlspecialchars($error_message) ?>
             </div>
-            <div class="forum-body">
-                <p class="forum-description">
-                    Discusiones generales sobre el sistema y temas diversos. Aquí puedes compartir ideas, hacer preguntas y participar en conversaciones con otros usuarios de la plataforma.
-                </p>
-                <div class="text-center">
-                    <a href="#" class="btn-forum" onclick="alert('Modo demostración: Los foros reales estarán disponibles después de configurar la base de datos.')">
-                        <i class="fas fa-arrow-right mr-2"></i>Entrar al Foro
-                    </a>
-                </div>
-            </div>
-        </div>
+        <?php endif; ?>
 
-        <div class="forum-card">
-            <div class="forum-header">
-                <div class="forum-icon">
-                    <i class="fas fa-tools"></i>
-                </div>
-                <h3 class="forum-title">Soporte Técnico</h3>
-                <div class="forum-creator">
-                    <i class="fas fa-user mr-1"></i>
-                    Por Administrador
-                </div>
-            </div>
-            <div class="forum-body">
-                <p class="forum-description">
-                    Ayuda y soporte técnico para usuarios del sistema. Si tienes problemas técnicos, necesitas ayuda con alguna funcionalidad o tienes dudas sobre el uso de la plataforma, este es el lugar indicado.
-                </p>
-                <div class="text-center">
-                    <a href="#" class="btn-forum" onclick="alert('Modo demostración: Los foros reales estarán disponibles después de configurar la base de datos.')">
-                        <i class="fas fa-arrow-right mr-2"></i>Entrar al Foro
-                    </a>
+        <?php if (empty($foros)): ?>
+            <div class="forum-card">
+                <div class="forum-body text-center">
+                    <div class="forum-icon mb-3">
+                        <i class="fas fa-comments" style="font-size: 3rem; color: #6c757d;"></i>
+                    </div>
+                    <h4>No hay foros disponibles</h4>
+                    <p class="text-muted">Los administradores aún no han creado foros de discusión.</p>
                 </div>
             </div>
-        </div>
-
-        <div class="forum-card">
-            <div class="forum-header">
-                <div class="forum-icon">
-                    <i class="fas fa-lightbulb"></i>
+        <?php else: ?>
+            <?php foreach ($foros as $foro): ?>
+                <div class="forum-card">
+                    <div class="forum-header">
+                        <div class="forum-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3 class="forum-title"><?= htmlspecialchars($foro['titulo']) ?></h3>
+                        <div class="forum-creator">
+                            <i class="fas fa-user mr-1"></i>
+                            Por <?= htmlspecialchars($foro['creador_nombre'] ?? 'Administrador') ?>
+                        </div>
+                    </div>
+                    <div class="forum-body">
+                        <p class="forum-description">
+                            <?= htmlspecialchars($foro['descripcion']) ?>
+                        </p>
+                        
+                        <!-- Estadísticas del foro -->
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <small class="text-muted">
+                                    <i class="fas fa-comment mr-1"></i>
+                                    <?= $foro['total_temas'] ?> temas
+                                </small>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted">
+                                    <i class="fas fa-reply mr-1"></i>
+                                    <?= $foro['total_respuestas'] ?> respuestas
+                                </small>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar mr-1"></i>
+                                    Creado <?= date('d M Y', strtotime($foro['fecha_creacion'])) ?>
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="ver_foro.php?id=<?= $foro['id'] ?>" class="btn-forum">
+                                <i class="fas fa-arrow-right mr-2"></i>Entrar al Foro
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <h3 class="forum-title">Sugerencias</h3>
-                <div class="forum-creator">
-                    <i class="fas fa-user mr-1"></i>
-                    Por Administrador
-                </div>
-            </div>
-            <div class="forum-body">
-                <p class="forum-description">
-                    Propuestas y mejoras para el sistema. Comparte tus ideas para hacer que la plataforma sea mejor para todos. Tus sugerencias son muy valiosas para el desarrollo continuo.
-                </p>
-                <div class="text-center">
-                    <a href="#" class="btn-forum" onclick="alert('Modo demostración: Los foros reales estarán disponibles después de configurar la base de datos.')">
-                        <i class="fas fa-arrow-right mr-2"></i>Entrar al Foro
-                    </a>
-                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
             </div>
         </div>
     </div>

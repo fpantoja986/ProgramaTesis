@@ -75,53 +75,56 @@ $stats = $stmt_stats->fetch(PDO::FETCH_ASSOC);
     
 
     <div class="admin-container">
-        <div class="page-header">
-            <h1 class="page-title">
-                <i class="fas fa-shield-alt mr-2"></i>Moderación de Foros
-            </h1>
-            <p class="mb-0">Gestiona el contenido inapropiado y mantén un ambiente seguro</p>
-        </div>
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12 col-xl-11">
+                    <div class="page-header text-center mb-4">
+                        <h1 class="page-title">
+                            <i class="fas fa-shield-alt mr-2"></i>Moderación de Foros
+                        </h1>
+                        <p class="mb-0">Gestiona el contenido inapropiado y mantén un ambiente seguro</p>
+                    </div>
 
-        <!-- Estadísticas -->
-        <div class="row stats-row">
-            <div class="col-md-3">
-                <div class="stat-card danger">
-                    <div class="stat-number"><?= $stats['reportadas'] ?></div>
-                    <div>Reportadas</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card warning">
-                    <div class="stat-number"><?= $stats['pendientes'] ?></div>
-                    <div>Pendientes</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card success">
-                    <div class="stat-number"><?= $stats['aprobadas'] ?></div>
-                    <div>Aprobadas</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card secondary">
-                    <div class="stat-number"><?= $stats['rechazadas'] ?></div>
-                    <div>Rechazadas</div>
-                </div>
-            </div>
-        </div>
+                    <!-- Estadísticas -->
+                    <div class="row stats-row justify-content-center">
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="stat-card danger">
+                                <div class="stat-number"><?= $stats['reportadas'] ?></div>
+                                <div>Reportadas</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="stat-card warning">
+                                <div class="stat-number"><?= $stats['pendientes'] ?></div>
+                                <div>Pendientes</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="stat-card success">
+                                <div class="stat-number"><?= $stats['aprobadas'] ?></div>
+                                <div>Aprobadas</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="stat-card secondary">
+                                <div class="stat-number"><?= $stats['rechazadas'] ?></div>
+                                <div>Rechazadas</div>
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- Respuestas para moderar -->
-        <?php if (empty($respuestas_moderacion)): ?>
-            <div class="text-center py-5">
-                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                <h4>¡Todo está al día!</h4>
-                <p class="text-muted">No hay respuestas que requieran moderación en este momento</p>
-            </div>
-        <?php else: ?>
-            <div class="row">
-                <?php foreach ($respuestas_moderacion as $respuesta): ?>
-                    <div class="col-12">
-                        <div class="card moderacion-card">
+                    <!-- Respuestas para moderar -->
+                    <?php if (empty($respuestas_moderacion)): ?>
+                        <div class="text-center py-5">
+                            <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                            <h4>¡Todo está al día!</h4>
+                            <p class="text-muted">No hay respuestas que requieran moderación en este momento</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="row justify-content-center">
+                            <?php foreach ($respuestas_moderacion as $respuesta): ?>
+                                <div class="col-12 col-lg-11">
+                                    <div class="card moderacion-card">
                             <div class="respuesta-header">
                                 <div class="respuesta-meta">
                                     <div class="usuario-info">
@@ -191,9 +194,12 @@ $stats = $stmt_stats->fetch(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                     </div>
-                <?php endforeach; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
-        <?php endif; ?>
+        </div>
     </div>
 
     <!-- Modal Ver Reportes -->

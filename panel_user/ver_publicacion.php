@@ -148,6 +148,212 @@ try {
         .container-fluid {
             padding: 0;
         }
+        
+        /* Estilos para comentarios estilo Instagram */
+        .comentarios-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .comentario-form {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .comentario-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 2px solid #667eea;
+        }
+        
+        .comentario-input-container {
+            flex: 1;
+        }
+        
+        .comentario-textarea {
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            padding: 12px 20px;
+            resize: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .comentario-textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .comentario-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .caracteres-restantes {
+            font-size: 12px;
+        }
+        
+        .comentarios-lista {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .comentario-item {
+            display: flex;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .comentario-item:hover {
+            background: #e9ecef;
+        }
+        
+        .comentario-content {
+            flex: 1;
+        }
+        
+        .comentario-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .comentario-nombre {
+            font-weight: 600;
+            color: #495057;
+            margin-right: 10px;
+        }
+        
+        .comentario-fecha {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .comentario-texto {
+            color: #495057;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+        
+        .comentario-actions-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .btn-like {
+            background: none;
+            border: none;
+            color: #6c757d;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-like:hover {
+            color: #dc3545;
+        }
+        
+        .btn-like.liked {
+            color: #dc3545;
+        }
+        
+        .btn-responder {
+            background: none;
+            border: none;
+            color: #6c757d;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-responder:hover {
+            color: #667eea;
+        }
+        
+        .btn-eliminar {
+            background: none;
+            border: none;
+            color: #dc3545;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-eliminar:hover {
+            color: #c82333;
+        }
+        
+        .btn-reportar {
+            background: none;
+            border: none;
+            color: #6c757d;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-reportar:hover {
+            color: #ffc107;
+        }
+        
+        .respuestas-container {
+            margin-left: 55px;
+            margin-top: 15px;
+        }
+        
+        .respuesta-item {
+            display: flex;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: white;
+            border-radius: 12px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .formulario-respuesta {
+            margin-left: 55px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .formulario-respuesta.show {
+            display: block;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+        
+        .empty-comments {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .empty-comments i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #dee2e6;
+        }
     </style>
 </head>
 <body>
@@ -205,6 +411,82 @@ try {
                     </div>
                 </div>
 
+                <!-- Sección de Comentarios -->
+                <div class="comentarios-section">
+                    <h3 class="mb-4">
+                        <i class="fas fa-comments mr-2"></i>
+                        Comentarios
+                    </h3>
+                    
+                    <!-- Formulario para nuevo comentario -->
+                    <div class="comentario-form mb-4">
+                        <div class="d-flex align-items-start">
+                            <img src="<?= !empty($_SESSION['foto_perfil'] ?? '') ? 'data:image/jpeg;base64,' . $_SESSION['foto_perfil'] : 'https://ui-avatars.com/api/?name=' . urlencode($_SESSION['nombre_completo'] ?? 'Usuario') ?>" 
+                                 class="comentario-avatar" alt="Tu avatar">
+                            <div class="comentario-input-container">
+                                <textarea class="form-control comentario-textarea" 
+                                          placeholder="Escribe un comentario..." 
+                                          rows="2" 
+                                          maxlength="1000"></textarea>
+                                <div class="comentario-actions">
+                                    <small class="text-muted caracteres-restantes">1000 caracteres restantes</small>
+                                    <button class="btn btn-primary btn-sm" onclick="publicarComentario()">
+                                        <i class="fas fa-paper-plane mr-1"></i> Publicar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista de comentarios -->
+                    <div id="comentarios-container" class="comentarios-lista">
+                        <!-- Los comentarios se cargarán aquí via AJAX -->
+                    </div>
+                </div>
+                
+                <!-- Modal para reportar comentarios -->
+                <div class="modal fade" id="modalReporte" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-flag mr-2"></i>Reportar Comentario
+                                </h5>
+                                <button type="button" class="close" data-dismiss="modal">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="formReporte">
+                                    <input type="hidden" id="comentario_id_reporte">
+                                    <div class="form-group">
+                                        <label for="motivo_reporte">Motivo del reporte:</label>
+                                        <select class="form-control" id="motivo_reporte" required>
+                                            <option value="">Selecciona un motivo</option>
+                                            <option value="spam">Spam</option>
+                                            <option value="inapropiado">Contenido inapropiado</option>
+                                            <option value="ofensivo">Contenido ofensivo</option>
+                                            <option value="irrelevante">Irrelevante</option>
+                                            <option value="otro">Otro</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="descripcion_reporte">Descripción (opcional):</label>
+                                        <textarea class="form-control" id="descripcion_reporte" rows="3" 
+                                                  placeholder="Proporciona más detalles sobre el problema..."></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-warning" onclick="enviarReporte()">
+                                    <i class="fas fa-flag mr-1"></i>Reportar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="text-center">
                     <a href="publicaciones.php" class="btn-volver">
                         <i class="fas fa-arrow-left mr-2"></i> Volver a Publicaciones
@@ -213,9 +495,477 @@ try {
             </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+    <script>
+        const publicacionId = <?= $id ?>;
+        let comentariosCargados = false;
+        
+        // Cargar comentarios al cargar la página
+        $(document).ready(function() {
+            cargarComentarios();
+            
+            // Contador de caracteres
+            $('.comentario-textarea').on('input', function() {
+                const maxLength = 1000;
+                const currentLength = $(this).val().length;
+                const remaining = maxLength - currentLength;
+                $('.caracteres-restantes').text(remaining + ' caracteres restantes');
+                
+                if (remaining < 50) {
+                    $('.caracteres-restantes').addClass('text-warning');
+                } else {
+                    $('.caracteres-restantes').removeClass('text-warning');
+                }
+            });
+        });
+        
+        function cargarComentarios() {
+            $('#comentarios-container').html('<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando comentarios...</div>');
+            
+            $.get('comentarios/obtener_comentarios.php', {id_publicacion: publicacionId})
+                .done(function(response) {
+                    // Parsear la respuesta JSON si viene como string
+                    if (typeof response === 'string') {
+                        try {
+                            response = JSON.parse(response);
+                        } catch (e) {
+                            console.error('Error al parsear JSON:', e);
+                            $('#comentarios-container').html(`
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                    Error al procesar respuesta del servidor
+                                </div>
+                            `);
+                            return;
+                        }
+                    }
+                    
+                    if (response.success) {
+                        mostrarComentarios(response.comentarios || []);
+                    } else {
+                        $('#comentarios-container').html(`
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                Error al cargar comentarios: ${response.message || 'Error desconocido'}
+                            </div>
+                        `);
+                    }
+                })
+                .fail(function(xhr, status, error) {
+                    console.error('Error de conexión:', error);
+                    console.error('Status:', status);
+                    console.error('XHR:', xhr);
+                    $('#comentarios-container').html(`
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            Error de conexión: ${error}
+                        </div>
+                    `);
+                });
+        }
+        
+        function mostrarComentarios(comentarios) {
+            if (comentarios.length === 0) {
+                $('#comentarios-container').html(`
+                    <div class="empty-comments">
+                        <i class="fas fa-comment-slash"></i>
+                        <h5>Sin comentarios</h5>
+                        <p>¡Sé el primero en comentar!</p>
+                    </div>
+                `);
+                return;
+            }
+            
+            let html = '';
+            comentarios.forEach(function(comentario) {
+                html += crearComentarioHTML(comentario);
+            });
+            
+            $('#comentarios-container').html(html);
+        }
+        
+        function crearComentarioHTML(comentario) {
+            const fecha = new Date(comentario.fecha_creacion);
+            const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const avatar = comentario.foto_perfil ? 
+                `data:image/jpeg;base64,${comentario.foto_perfil}` : 
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(comentario.nombre_completo)}`;
+            
+            const esMio = comentario.id_usuario == <?= $_SESSION['user_id'] ?>;
+            const likedClass = comentario.user_liked > 0 ? 'liked' : '';
+            
+            let respuestasHTML = '';
+            if (comentario.respuestas && comentario.respuestas.length > 0) {
+                respuestasHTML = '<div class="respuestas-container">';
+                comentario.respuestas.forEach(function(respuesta) {
+                    respuestasHTML += crearRespuestaHTML(respuesta);
+                });
+                respuestasHTML += '</div>';
+            }
+            
+            return `
+                <div class="comentario-item" data-comentario-id="${comentario.id}">
+                    <img src="${avatar}" class="comentario-avatar" alt="${comentario.nombre_completo}">
+                    <div class="comentario-content">
+                        <div class="comentario-header">
+                            <span class="comentario-nombre">${comentario.nombre_completo}</span>
+                            <span class="comentario-fecha">${fechaFormateada}</span>
+                        </div>
+                        <div class="comentario-texto">${comentario.comentario}</div>
+                        <div class="comentario-actions-buttons">
+                            <button class="btn-like ${likedClass}" onclick="toggleLike(${comentario.id})">
+                                <i class="fas fa-heart"></i>
+                                <span class="likes-count">${comentario.likes_count}</span>
+                            </button>
+                            <button class="btn-responder" onclick="mostrarFormularioRespuesta(${comentario.id})">
+                                <i class="fas fa-reply mr-1"></i>Responder
+                            </button>
+                            ${!esMio ? `<button class="btn-reportar" onclick="mostrarModalReporte(${comentario.id})">
+                                <i class="fas fa-flag mr-1"></i>Reportar
+                            </button>` : ''}
+                            ${esMio ? `<button class="btn-eliminar" onclick="eliminarComentario(${comentario.id})">
+                                <i class="fas fa-trash mr-1"></i>Eliminar
+                            </button>` : ''}
+                        </div>
+                        ${respuestasHTML}
+                        <div class="formulario-respuesta" id="form-respuesta-${comentario.id}">
+                            <div class="d-flex align-items-start">
+                                <img src="<?= !empty($_SESSION['foto_perfil'] ?? '') ? 'data:image/jpeg;base64,' . $_SESSION['foto_perfil'] : 'https://ui-avatars.com/api/?name=' . urlencode($_SESSION['nombre_completo'] ?? 'Usuario') ?>" 
+                                     class="comentario-avatar" alt="Tu avatar">
+                                <div class="comentario-input-container">
+                                    <textarea class="form-control comentario-textarea" 
+                                              placeholder="Escribe una respuesta..." 
+                                              rows="2" 
+                                              maxlength="1000"
+                                              data-comentario-padre="${comentario.id}"></textarea>
+                                    <div class="comentario-actions">
+                                        <small class="text-muted caracteres-restantes">1000 caracteres restantes</small>
+                                        <button class="btn btn-primary btn-sm" onclick="publicarRespuesta(${comentario.id})">
+                                            <i class="fas fa-paper-plane mr-1"></i> Responder
+                                        </button>
+                                        <button class="btn btn-secondary btn-sm" onclick="ocultarFormularioRespuesta(${comentario.id})">
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function crearRespuestaHTML(respuesta) {
+            const fecha = new Date(respuesta.fecha_creacion);
+            const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const avatar = respuesta.foto_perfil ? 
+                `data:image/jpeg;base64,${respuesta.foto_perfil}` : 
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(respuesta.nombre_completo)}`;
+            
+            const esMio = respuesta.id_usuario == <?= $_SESSION['user_id'] ?>;
+            const likedClass = respuesta.user_liked > 0 ? 'liked' : '';
+            
+            return `
+                <div class="respuesta-item" data-comentario-id="${respuesta.id}">
+                    <img src="${avatar}" class="comentario-avatar" alt="${respuesta.nombre_completo}">
+                    <div class="comentario-content">
+                        <div class="comentario-header">
+                            <span class="comentario-nombre">${respuesta.nombre_completo}</span>
+                            <span class="comentario-fecha">${fechaFormateada}</span>
+                        </div>
+                        <div class="comentario-texto">${respuesta.comentario}</div>
+                        <div class="comentario-actions-buttons">
+                            <button class="btn-like ${likedClass}" onclick="toggleLike(${respuesta.id})">
+                                <i class="fas fa-heart"></i>
+                                <span class="likes-count">${respuesta.likes_count}</span>
+                            </button>
+                            ${!esMio ? `<button class="btn-reportar" onclick="mostrarModalReporte(${respuesta.id})">
+                                <i class="fas fa-flag mr-1"></i>Reportar
+                            </button>` : ''}
+                            ${esMio ? `<button class="btn-eliminar" onclick="eliminarComentario(${respuesta.id})">
+                                <i class="fas fa-trash mr-1"></i>Eliminar
+                            </button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function publicarComentario() {
+            const comentario = $('.comentario-textarea').val().trim();
+            
+            if (!comentario) {
+                mostrarMensaje('Por favor escribe un comentario', 'warning');
+                return;
+            }
+            
+            // Deshabilitar el botón para evitar doble envío
+            const btnPublicar = $('.comentario-actions button');
+            btnPublicar.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Publicando...');
+            
+            $.post('comentarios/procesar_comentario.php', {
+                action: 'crear_comentario',
+                id_publicacion: publicacionId,
+                comentario: comentario
+            })
+            .done(function(response) {
+                // Parsear la respuesta JSON si viene como string
+                if (typeof response === 'string') {
+                    try {
+                        response = JSON.parse(response);
+                    } catch (e) {
+                        console.error('Error al parsear JSON:', e);
+                        mostrarMensaje('Error al procesar respuesta del servidor', 'danger');
+                        return;
+                    }
+                }
+                
+                if (response.success) {
+                    mostrarMensaje('¡Comentario agregado con éxito!', 'success');
+                    $('.comentario-textarea').val('');
+                    $('.caracteres-restantes').text('1000 caracteres restantes');
+                    cargarComentarios();
+                } else {
+                    mostrarMensaje('Error: ' + (response.message || 'Error desconocido'), 'danger');
+                }
+            })
+            .fail(function(xhr, status, error) {
+                console.error('Error al publicar comentario:', error);
+                mostrarMensaje('Error de conexión: ' + error, 'danger');
+            })
+            .always(function() {
+                // Rehabilitar el botón
+                btnPublicar.prop('disabled', false).html('<i class="fas fa-paper-plane mr-1"></i> Publicar');
+            });
+        }
+        
+        function publicarRespuesta(comentarioPadreId) {
+            const textarea = $(`#form-respuesta-${comentarioPadreId} .comentario-textarea`);
+            const comentario = textarea.val().trim();
+            
+            if (!comentario) {
+                mostrarMensaje('Por favor escribe una respuesta', 'warning');
+                return;
+            }
+            
+            // Deshabilitar el botón
+            const btnResponder = $(`#form-respuesta-${comentarioPadreId} .btn-primary`);
+            btnResponder.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Respondiendo...');
+            
+            $.post('comentarios/procesar_comentario.php', {
+                action: 'crear_comentario',
+                id_publicacion: publicacionId,
+                comentario: comentario,
+                id_comentario_padre: comentarioPadreId
+            })
+            .done(function(response) {
+                // Parsear la respuesta JSON si viene como string
+                if (typeof response === 'string') {
+                    try {
+                        response = JSON.parse(response);
+                    } catch (e) {
+                        console.error('Error al parsear JSON:', e);
+                        mostrarMensaje('Error al procesar respuesta del servidor', 'danger');
+                        return;
+                    }
+                }
+                
+                if (response.success) {
+                    mostrarMensaje('¡Respuesta agregada con éxito!', 'success');
+                    textarea.val('');
+                    ocultarFormularioRespuesta(comentarioPadreId);
+                    cargarComentarios();
+                } else {
+                    mostrarMensaje('Error: ' + (response.message || 'Error desconocido'), 'danger');
+                }
+            })
+            .fail(function(xhr, status, error) {
+                console.error('Error al publicar respuesta:', error);
+                mostrarMensaje('Error de conexión: ' + error, 'danger');
+            })
+            .always(function() {
+                // Rehabilitar el botón
+                btnResponder.prop('disabled', false).html('<i class="fas fa-paper-plane mr-1"></i> Responder');
+            });
+        }
+        
+        function toggleLike(comentarioId) {
+            $.post('comentarios/procesar_comentario.php', {
+                action: 'like_comentario',
+                id_comentario: comentarioId
+            })
+            .done(function(response) {
+                // Parsear la respuesta JSON si viene como string
+                if (typeof response === 'string') {
+                    try {
+                        response = JSON.parse(response);
+                    } catch (e) {
+                        console.error('Error al parsear JSON:', e);
+                        alert('Error al procesar respuesta del servidor');
+                        return;
+                    }
+                }
+                
+                if (response.success) {
+                    const btn = $(`[data-comentario-id="${comentarioId}"] .btn-like`);
+                    const countSpan = btn.find('.likes-count');
+                    
+                    if (response.liked) {
+                        btn.addClass('liked');
+                    } else {
+                        btn.removeClass('liked');
+                    }
+                    
+                    countSpan.text(response.likes_count);
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            })
+            .fail(function() {
+                alert('Error de conexión');
+            });
+        }
+        
+        function eliminarComentario(comentarioId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este comentario?\n\nEsta acción no se puede deshacer.')) {
+                return;
+            }
+            
+            // Mostrar loading
+            const btnEliminar = $(`[data-comentario-id="${comentarioId}"] .btn-eliminar`);
+            const textoOriginal = btnEliminar.html();
+            btnEliminar.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Eliminando...');
+            
+            $.post('comentarios/procesar_comentario.php', {
+                action: 'eliminar_comentario',
+                id_comentario: comentarioId
+            })
+            .done(function(response) {
+                // Parsear la respuesta JSON si viene como string
+                if (typeof response === 'string') {
+                    try {
+                        response = JSON.parse(response);
+                    } catch (e) {
+                        console.error('Error al parsear JSON:', e);
+                        mostrarMensaje('Error al procesar respuesta del servidor', 'danger');
+                        return;
+                    }
+                }
+                
+                if (response.success) {
+                    mostrarMensaje('¡Comentario eliminado exitosamente!', 'success');
+                    cargarComentarios();
+                } else {
+                    mostrarMensaje('Error: ' + (response.message || 'Error desconocido'), 'danger');
+                }
+            })
+            .fail(function(xhr, status, error) {
+                console.error('Error al eliminar comentario:', error);
+                mostrarMensaje('Error de conexión: ' + error, 'danger');
+            })
+            .always(function() {
+                // Rehabilitar el botón
+                btnEliminar.prop('disabled', false).html(textoOriginal);
+            });
+        }
+        
+        function mostrarFormularioRespuesta(comentarioId) {
+            $(`#form-respuesta-${comentarioId}`).addClass('show');
+            $(`#form-respuesta-${comentarioId} .comentario-textarea`).focus();
+        }
+        
+        function ocultarFormularioRespuesta(comentarioId) {
+            $(`#form-respuesta-${comentarioId}`).removeClass('show');
+            $(`#form-respuesta-${comentarioId} .comentario-textarea`).val('');
+        }
+        
+        function mostrarMensaje(mensaje, tipo = 'info') {
+            // Crear el mensaje
+            const alertClass = `alert-${tipo}`;
+            const iconClass = tipo === 'success' ? 'fa-check-circle' : 
+                             tipo === 'danger' ? 'fa-exclamation-triangle' : 
+                             tipo === 'warning' ? 'fa-exclamation-circle' : 'fa-info-circle';
+            
+            const mensajeHtml = `
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert" style="margin: 10px 0;">
+                    <i class="fas ${iconClass} mr-2"></i>
+                    ${mensaje}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            `;
+            
+            // Insertar el mensaje al inicio de la sección de comentarios
+            $('.comentarios-section').prepend(mensajeHtml);
+            
+            // Auto-ocultar después de 5 segundos
+            setTimeout(function() {
+                $('.alert').fadeOut();
+            }, 5000);
+        }
+        
+        function mostrarModalReporte(comentarioId) {
+            $('#comentario_id_reporte').val(comentarioId);
+            $('#motivo_reporte').val('');
+            $('#descripcion_reporte').val('');
+            $('#modalReporte').modal('show');
+        }
+        
+        function enviarReporte() {
+            const comentarioId = $('#comentario_id_reporte').val();
+            const motivo = $('#motivo_reporte').val();
+            const descripcion = $('#descripcion_reporte').val();
+            
+            if (!motivo) {
+                alert('Por favor selecciona un motivo para el reporte');
+                return;
+            }
+            
+            $.post('comentarios/procesar_comentario.php', {
+                action: 'reportar_comentario',
+                id_comentario: comentarioId,
+                motivo: motivo,
+                descripcion: descripcion
+            })
+            .done(function(response) {
+                // Parsear la respuesta JSON si viene como string
+                if (typeof response === 'string') {
+                    try {
+                        response = JSON.parse(response);
+                    } catch (e) {
+                        console.error('Error al parsear JSON:', e);
+                        alert('Error al procesar respuesta del servidor');
+                        return;
+                    }
+                }
+                
+                if (response.success) {
+                    alert('Comentario reportado exitosamente. Gracias por tu colaboración.');
+                    $('#modalReporte').modal('hide');
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            })
+            .fail(function() {
+                alert('Error de conexión');
+            });
+        }
+    </script>
 </body>
 </html>
 

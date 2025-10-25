@@ -21,8 +21,8 @@ $stmt = $pdo->prepare("
     INNER JOIN respuestas_foro resp ON r.id_respuesta = resp.id
     INNER JOIN temas_foro t ON resp.id_tema = t.id
     INNER JOIN foros f ON t.id_foro = f.id
-    INNER JOIN usuarios u1 ON r.id_usuario_reportador = u1.id
-    INNER JOIN usuarios u2 ON r.id_usuario_reportado = u2.id
+    INNER JOIN usuarios u1 ON r.id_reportante = u1.id
+    INNER JOIN usuarios u2 ON resp.id_usuario = u2.id
     ORDER BY r.fecha_reporte DESC
 ");
 $stmt->execute();

@@ -8,7 +8,7 @@ $errorMsg = isset($_GET['error']) ? htmlspecialchars(urldecode($_GET['error'])) 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mujeres en Tech - Iniciar Sesión</title>
+    <title>Tech Community - Iniciar Sesión</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
@@ -24,8 +24,8 @@ $errorMsg = isset($_GET['error']) ? htmlspecialchars(urldecode($_GET['error'])) 
                 </svg>
             </div>
 
-            <h1 class="text-3xl font-bold text-center text-purple-700 mb-4">Empoderando Mujeres en Tecnología</h1>
-            <p class="text-center text-gray-600 mb-8 text-lg">Conectamos, inspiramos y apoyamos a mujeres en el desarrollo de software</p>
+            <h1 class="text-3xl font-bold text-center text-purple-700 mb-4">Comunidad de Desarrolladores</h1>
+            <p class="text-center text-gray-600 mb-8 text-lg">Conectamos, inspiramos y apoyamos a desarrolladores en el mundo del software</p>
 
             <?php if ($errorMsg): ?>
                 <div class="mb-6">

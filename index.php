@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mujeres en Tech - Comunidad de mujeres en desarrollo de software</title>
+    <title>Tech Community - Comunidad de desarrolladores de software</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
@@ -14,12 +14,12 @@
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"></path>
                 </svg>
             </div>
-            <h1 class="text-3xl font-bold text-center text-purple-700 mb-4">Empoderando Mujeres en Tecnología</h1>
-            <p class="text-center text-gray-600 mb-8 text-lg">Conectamos, inspiramos y apoyamos a mujeres en el desarrollo de software</p>
+            <h1 class="text-3xl font-bold text-center text-purple-700 mb-4">Comunidad de Desarrolladores</h1>
+            <p class="text-center text-gray-600 mb-8 text-lg">Conectamos, inspiramos y apoyamos a desarrolladores en el mundo del software</p>
             
             <div class="flex justify-center space-x-4">
                 <a href="registro.php" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition duration-300">
-                    Únete a Nosotras
+                    Únete a la Comunidad
                 </a>
                 <a href="login.php" class="bg-white hover:bg-gray-100 text-purple-600 px-6 py-3 rounded-lg font-medium border border-purple-600 transition duration-300">
                     Acceder al Sistema
@@ -27,7 +27,7 @@
             </div>
             
             <div class="mt-12 text-center">
-                <h3 class="text-xl font-semibold text-purple-700 mb-4">Conéctate con nuestra comunidad</h3>
+                <h3 class="text-xl font-semibold text-purple-700 mb-4">Conéctate con la comunidad</h3>
                 <div class="flex justify-center space-x-4">
                     <a href="#" class="text-purple-600 hover:text-purple-800">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">

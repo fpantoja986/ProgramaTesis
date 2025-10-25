@@ -339,9 +339,15 @@ if ($currentDir === 'publicaciones' || $currentDir === 'foros' || $currentDir ==
         </button>
         <div class="dropdown-menu-custom foros-dropdown" id="forosDropdown" role="region" aria-hidden="true">
             <a href="<?= $basePath ?>foros/gestionar_foros.php"><i class="fas fa-cog"></i> Gestionar Foros</a>
-            <a href="<?= $basePath ?>foros/moderacion/moderacion_foros.php"><i class="fas fa-shield-alt"></i> Moderación</a>
+            <a href="<?= $basePath ?>foros/moderacion_foros.php"><i class="fas fa-shield-alt"></i> Moderación</a>
             <a href="<?= $basePath ?>foros/gestionar_reportes.php"><i class="fas fa-flag"></i> Gestionar Reportes</a>
         </div>
+
+        <!-- Gestión de Comentarios -->
+        <a href="<?= $basePath ?>comentarios/gestionar_comentarios.php" class="icon-btn <?= basename($_SERVER['PHP_SELF']) === 'gestionar_comentarios.php' ? 'active' : '' ?>" title="Gestión de Comentarios">
+            <i class="fas fa-comment-dots"></i>
+            <span class="icon-text">Comentarios</span>
+        </a>
 
         <!-- Trabajadores Destacados -->
         <a href="<?= $basePath ?>trabajador_resaltado/gestionar_trabajadores_destacados.php" class="icon-btn <?= basename($_SERVER['PHP_SELF']) === 'gestionar_trabajadores_destacados.php' ? 'active' : '' ?>" title="Trabajadores Destacados">

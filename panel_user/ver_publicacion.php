@@ -354,13 +354,56 @@ try {
             margin-bottom: 15px;
             color: #dee2e6;
         }
+        
+        .pdf-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .pdf-actions {
+            text-align: center;
+        }
+        
+        .pdf-actions .btn {
+            margin: 0 10px;
+        }
+        
+        .btn-back {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+        
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+            text-decoration: none;
+            transform: translateX(-3px);
+        }
     </style>
 </head>
 <body>
     <div class="container-fluid">
         <div class="publicacion-card">
             <div class="publicacion-header">
-                <span class="badge-tipo"><?= htmlspecialchars($publicacion['tipo'] ?? 'Publicación') ?></span>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <a href="publicaciones.php" class="btn-back">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <span class="badge-tipo"><?= htmlspecialchars($publicacion['tipo'] ?? 'Publicación') ?></span>
+                </div>
                 <h1><?= htmlspecialchars($publicacion['titulo']) ?></h1>
             </div>
 
@@ -385,8 +428,34 @@ try {
                                     Tu navegador no soporta audio.
                                 </audio>
                             </div>
+                        <?php elseif ($publicacion['tipo'] === 'articulo'): ?>
+                            <div class="pdf-container">
+                                <iframe src="../panel_admin/publicaciones/servir_archivo.php?id=<?= $publicacion['id'] ?>" 
+                                        style="width:100%; height:600px; border:none;" 
+                                        class="border rounded"
+                                        type="application/pdf">
+                                </iframe>
+                                <div class="pdf-actions mt-3">
+                                    <a href="../panel_admin/publicaciones/servir_archivo.php?id=<?= $publicacion['id'] ?>" 
+                                       target="_blank" 
+                                       class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt mr-2"></i>Abrir en nueva pestaña
+                                    </a>
+                                    <a href="../panel_admin/publicaciones/servir_archivo.php?id=<?= $publicacion['id'] ?>&download=1" 
+                                       class="btn btn-success">
+                                        <i class="fas fa-download mr-2"></i>Descargar PDF
+                                    </a>
+                                </div>
+                            </div>
                         <?php else: ?>
-                            <iframe src="../panel_admin/publicaciones/servir_archivo.php?id=<?= $publicacion['id'] ?>" style="width:100%; height:500px; border:none;" class="border rounded"></iframe>
+                            <div class="alert alert-info">
+                                <i class="fas fa-file mr-2"></i>
+                                <a href="../panel_admin/publicaciones/servir_archivo.php?id=<?= $publicacion['id'] ?>" 
+                                   target="_blank" 
+                                   class="text-decoration-none">
+                                    Ver archivo adjunto
+                                </a>
+                            </div>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>

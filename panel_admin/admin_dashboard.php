@@ -267,6 +267,11 @@ try {
                                     <i class="fas fa-folder mr-2"></i>Gestionar Secciones
                                 </a>
                             </div>
+                            <div class="col-md-3 mb-2">
+                                <a href="https://docs.google.com/forms/d/e/1FAIpQLSdf5oa2DdVaegvDQJ-Yqiil4RnwBqla4RwY5iuRopIZJzKaWw/viewform?usp=publish-editor" target="_blank" class="btn btn-outline-primary btn-block">
+                                    <i class="fas fa-star mr-2"></i>Calificar Sistema
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

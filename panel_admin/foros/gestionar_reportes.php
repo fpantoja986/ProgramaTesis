@@ -59,9 +59,14 @@ foreach ($estadisticas as $stat) {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         .admin-container {
-            margin-left: 250px;
-            padding: 20px;
+            margin-left: 90px; /* ancho base del sidebar */
+            padding: 28px;
             min-height: 100vh;
+            transition: margin-left .3s ease;
+        }
+        /* Cuando el sidebar se expande al pasar el mouse */
+        .sidebar:hover ~ .admin-container {
+            margin-left: 260px;
         }
         .page-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

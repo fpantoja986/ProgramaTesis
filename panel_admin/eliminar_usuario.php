@@ -7,7 +7,7 @@ if (isset($_GET['id'])) {
     $stmt = $pdo->prepare("DELETE FROM usuarios WHERE id = ?");
     $stmt->execute([$id]);
 
-    echo "ok"; // respuesta simple para JS
+    echo "ok"; 
 } else {
     http_response_code(400);
     echo "ID no proporcionado.";

@@ -3,7 +3,7 @@
 $currentDir = basename(dirname($_SERVER['PHP_SELF']));
 $basePath = '';
 
-if ($currentDir === 'publicaciones' || $currentDir === 'foros' || $currentDir === 'trabajador_resaltado' || $currentDir === 'moderacion') {
+if ($currentDir === 'publicaciones' || $currentDir === 'foros' || $currentDir === 'trabajador_resaltado' || $currentDir === 'moderacion' || $currentDir === 'comentarios') {
     $basePath = '../';
 }
 ?>
@@ -358,6 +358,11 @@ if ($currentDir === 'publicaciones' || $currentDir === 'foros' || $currentDir ==
         <a href="<?= $basePath ?>ajustes.php" class="icon-btn <?= basename($_SERVER['PHP_SELF']) === 'ajustes.php' ? 'active' : '' ?>" title="Configuración">
             <i class="fas fa-cog"></i>
             <span class="icon-text">Configuración</span>
+        </a>
+
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdf5oa2DdVaegvDQJ-Yqiil4RnwBqla4RwY5iuRopIZJzKaWw/viewform?usp=publish-editor" target="_blank" class="icon-btn" title="Calificar Sistema">
+            <i class="fas fa-star"></i>
+            <span class="icon-text">Calificar Sistema</span>
         </a>
 
         <!-- Logout -->

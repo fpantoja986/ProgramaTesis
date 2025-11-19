@@ -183,10 +183,10 @@ $actividad_reciente = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <?php include 'user_sidebar.php'; ?>
             </div>
-            <div class="col-md-9">
+            <div class="col-md-10">
                 <div class="p-4">
                     <!-- Header del Dashboard -->
                     <div class="dashboard-header">
@@ -224,6 +224,22 @@ $actividad_reciente = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </div>
                                 <div class="stats-number"><?= $stats['notificaciones'] ?></div>
                                 <div class="stats-label">Notificaciones</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta de Calificación -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="stats-card text-center">
+                                <div class="stats-icon mx-auto" style="background: linear-gradient(45deg, #00b894, #00cec9);">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <h5 class="mt-3">¡Tu opinión es importante!</h5>
+                                <p class="text-muted">Ayúdanos a mejorar calificando tu experiencia con el sistema</p>
+                                <a href="https://docs.google.com/forms/d/e/1FAIpQLSdf5oa2DdVaegvDQJ-Yqiil4RnwBqla4RwY5iuRopIZJzKaWw/viewform?usp=publish-editor" target="_blank" class="btn-action">
+                                    <i class="fas fa-star mr-2"></i>Calificar Sistema
+                                </a>
                             </div>
                         </div>
                     </div>

@@ -45,29 +45,54 @@ $secciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        body { background: linear-gradient(180deg, #fafbff 0%, #f3f4f8 100%); }
+
+        /* Acomoda el contenido para que no quede debajo del sidebar fijo */
+        .admin-container {
+            margin-left: 90px; /* ancho base del sidebar */
+            padding: 28px;
+            transition: margin-left .3s ease;
+            max-width: 1400px;
+        }
+        @media (max-width: 992px) { .admin-container { padding: 16px; } }
+        /* Cuando el sidebar se expande al hacer hover, movemos el contenido */
+        .sidebar:hover ~ .admin-container { margin-left: 260px; }
+
+        /* Header elegante */
+        .page-header {
+            background: #ffffff; border-radius: 16px; padding: 18px 22px;
+            box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 22px; border: 1px solid rgba(17, 24, 39, 0.06);
+        }
+        .page-title { display:flex; align-items:center; gap:10px; margin:0; font-weight:700; color:#1f2937; }
+        .page-title i { color:#667eea; }
+        .page-header .btn { border-radius: 12px; padding: 10px 14px; box-shadow: 0 6px 16px rgba(102,126,234,.3); }
+
+        /* Tarjetas listas para drag & drop */
         .content-card {
             border-left: 4px solid #007bff;
-            transition: all 0.3s ease;
+            border: 1px solid rgba(17, 24, 39, 0.06);
+            border-radius: 16px;
+            transition: transform .25s ease, box-shadow .25s ease;
+            box-shadow: 0 8px 24px rgba(17, 24, 39, 0.06);
         }
-        .content-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
+        .content-card:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(17,24,39,.12); }
+
         .section-card {
             border-left: 4px solid;
-            transition: all 0.3s ease;
+            border: 1px solid rgba(17, 24, 39, 0.06);
+            border-radius: 16px;
+            transition: transform .25s ease, box-shadow .25s ease;
+            box-shadow: 0 8px 24px rgba(17, 24, 39, 0.06);
         }
-        .section-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .drag-over {
-            background-color: #e3f2fd !important;
-            border-color: #2196f3 !important;
-        }
-        .dragging {
-            opacity: 0.5;
-        }
+        .section-card:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(17,24,39,.12); }
+
+        .drag-over { background-color: #e3f2fd !important; border-color: #2196f3 !important; }
+        .dragging { opacity: 0.5; }
+
+        .badge { border-radius:12px; padding:6px 10px; font-weight:600; }
+        .btn-light { border-radius:10px; }
     </style>
 </head>
 <body>

@@ -158,41 +158,40 @@ $stats['eliminados'] = $stmt->fetchColumn();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         body {
-            background-color: #f8f9fc;
+            background: linear-gradient(180deg, #fafbff 0%, #f3f4f8 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        /* Offset del contenido para respetar el sidebar fijo */
+        .admin-container { margin-left: 90px; padding: 28px; transition: margin-left .3s ease; max-width: 1400px; }
+        .sidebar:hover ~ .admin-container { margin-left: 260px; }
+        @media (max-width: 992px) { .admin-container { padding: 16px; } }
+
+        /* Encabezado elegante */
+        .page-header { background:#fff; border-radius:18px; padding:22px 26px; box-shadow:0 12px 34px rgba(17,24,39,.08); display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; border:1px solid rgba(17,24,39,.06); }
+        .page-header h1 { margin:0; font-weight:700; color:#1f2937; }
         .stats-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-            margin-bottom: 2rem;
-            text-align: center;
+            background:#fff;
+            border-radius:16px;
+            padding:1.25rem;
+            box-shadow:0 8px 24px rgba(17,24,39,.06);
+            margin-bottom:1.25rem;
+            text-align:center;
+            transition:transform .25s ease, box-shadow .25s ease;
         }
+        .stats-card:hover { transform:translateY(-4px); box-shadow:0 14px 32px rgba(17,24,39,.12); }
         .stats-number {
             font-size: 2rem;
             font-weight: bold;
             color: #667eea;
         }
-        .comentario-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-            margin-bottom: 1rem;
-            padding: 1.5rem;
-        }
+        .comentario-card { background:#fff; border-radius:16px; box-shadow:0 8px 24px rgba(17,24,39,.06); margin-bottom:1rem; padding:1.5rem; border:1px solid rgba(17,24,39,.06); transition:transform .25s ease, box-shadow .25s ease; }
+        .comentario-card:hover { transform:translateY(-3px); box-shadow:0 14px 32px rgba(17,24,39,.12); }
         .comentario-header {
             display: flex;
             align-items: center;
             margin-bottom: 1rem;
         }
-        .comentario-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 15px;
-        }
+        .comentario-avatar { width:50px; height:50px; border-radius:50%; object-fit:cover; margin-right:15px; box-shadow:0 0 0 3px #fff, 0 0 0 5px rgba(102,126,234,.35); }
         .comentario-meta {
             flex: 1;
         }
@@ -217,14 +216,8 @@ $stats['eliminados'] = $stmt->fetchColumn();
             gap: 10px;
             flex-wrap: wrap;
         }
-        .btn-moderation {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+        .btn-moderation { padding:.5rem 1rem; border-radius:22px; font-size:.9rem; border:none; cursor:pointer; transition: transform .2s ease, box-shadow .2s ease, filter .2s ease; }
+        .btn-moderation:hover { transform:translateY(-2px); box-shadow:0 8px 18px rgba(17,24,39,.16); filter:saturate(1.05); }
         .btn-aprobar {
             background: linear-gradient(45deg, #28a745, #20c997);
             color: white;
@@ -241,12 +234,7 @@ $stats['eliminados'] = $stmt->fetchColumn();
             background: linear-gradient(45deg, #ffc107, #e0a800);
             color: #212529;
         }
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
+        .status-badge { padding:.35rem .8rem; border-radius:18px; font-size:.78rem; font-weight:700; letter-spacing:.01em; }
         .status-pendiente {
             background: #fff3cd;
             color: #856404;
@@ -273,27 +261,18 @@ $stats['eliminados'] = $stmt->fetchColumn();
             margin-bottom: 0.5rem;
             border-left: 4px solid #ffc107;
         }
-        .filters-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-            margin-bottom: 2rem;
-        }
+        .filters-card { background:#fff; border-radius:16px; padding:1.5rem; box-shadow:0 8px 24px rgba(17,24,39,.06); margin-bottom:1.25rem; border:1px solid rgba(17,24,39,.06); }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-3">
-                <?php include '../panel_sidebar.php'; ?>
-            </div>
-            <div class="col-md-9">
-                <div class="p-4">
-                    <h1 class="mb-4">
-                        <i class="fas fa-comments mr-3"></i>
-                        Gestión de Comentarios
-                    </h1>
+    <?php include '../panel_sidebar.php'; ?>
+    <div class="admin-container">
+        <div class="page-header">
+            <h1>
+                <i class="fas fa-comments mr-2"></i>
+                Gestión de Comentarios
+            </h1>
+        </div>
                     
                     <!-- Estadísticas -->
                     <div class="row mb-4">
@@ -506,9 +485,6 @@ $stats['eliminados'] = $stmt->fetchColumn();
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
-                </div>
-            </div>
-        </div>
     </div>
     
     <!-- Modal para rechazar comentario -->

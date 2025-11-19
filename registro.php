@@ -27,7 +27,6 @@
         <option value="">Selecciona una opción</option>
         <option value="Femenino">Femenino</option>
         <option value="Masculino">Masculino</option>
-        <option value="No binario">No binario</option>
         <option value="Prefiero no decirlo">Prefiero no decirlo</option>
     </select>
 </div>

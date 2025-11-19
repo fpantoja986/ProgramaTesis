@@ -45,8 +45,11 @@ $usuarios = $stmt_usuarios->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="trabajadores.css?v=1">
-    
-    
+    <style>
+        /* Mover el contenido hacia la izquierda respetando el sidebar */
+        .admin-container { margin-left: 90px; padding: 24px; transition: margin-left .3s ease; }
+        .sidebar:hover ~ .admin-container { margin-left: 260px; }
+    </style>
 </head>
 <body>
     <?php include '../panel_sidebar.php'; ?>

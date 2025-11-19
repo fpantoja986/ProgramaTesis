@@ -68,6 +68,11 @@ $stats = $stmt_stats->fetch(PDO::FETCH_ASSOC);
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="moderacion/moderacion.css">
     <link rel="stylesheet" href="../dark-mode.css">
+    <style>
+        /* Desplazar contenido para que no quede tan a la derecha y respete el sidebar */
+        .admin-container { margin-left: 90px; padding: 24px; transition: margin-left .3s ease; }
+        .sidebar:hover ~ .admin-container { margin-left: 260px; }
+    </style>
 
 </head>
     <?php include '../panel_sidebar.php'; ?>
@@ -76,8 +81,8 @@ $stats = $stmt_stats->fetch(PDO::FETCH_ASSOC);
 
     <div class="admin-container">
         <div class="container-fluid">
-            <div class="row justify-content-center">
-                <div class="col-12 col-xl-11">
+            <div class="row">
+                <div class="col-12 col-xl-12">
                     <div class="page-header text-center mb-4">
                         <h1 class="page-title">
                             <i class="fas fa-shield-alt mr-2"></i>Moderación de Foros

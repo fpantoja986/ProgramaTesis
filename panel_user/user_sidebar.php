@@ -116,6 +116,12 @@ $foto_perfil = $user_data['foto_perfil'] ?? null;
                     <i class="fas fa-user-tag mr-1"></i>
                     Rol: Usuario
                 </small>
+                <div class="mt-3">
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdf5oa2DdVaegvDQJ-Yqiil4RnwBqla4RwY5iuRopIZJzKaWw/viewform?usp=publish-editor" target="_blank" class="btn btn-sm btn-outline-primary w-100">
+                        <i class="fas fa-star mr-1"></i>
+                        Calificar Sistema
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -124,6 +130,11 @@ $foto_perfil = $user_data['foto_perfil'] ?? null;
 <style>
 .sidebar {
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    min-height: 100vh;
+    height: auto;
+    overflow: visible;
 }
 
 .nav-link {

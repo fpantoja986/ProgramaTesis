@@ -38,8 +38,8 @@ try {
         jsonResponse(false, 'Archivo db.php no encontrado', 500);
     }
     
-    // Incluir base de datos
     require_once 'db.php';
+    require_once __DIR__ . '/email_config.php';
     
     // Verificar e incluir PHPMailer
     if (file_exists('../vendor/autoload.php')) {
@@ -120,24 +120,33 @@ try {
         $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
         
         try {
-            // Configuración SMTP
             $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
+            $mail->Host = SMTP_HOST;
             $mail->SMTPAuth = true;
-            $mail->Username = 'fpantoja986@gmail.com';
-            $mail->Password = 'mhbz abyv isat goyy';
-            $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
-            $mail->CharSet = 'UTF-8';
-            $mail->SMTPDebug = 0;
+            $mail->Username = SMTP_USERNAME;
+            $mail->Password = SMTP_PASSWORD;
+            $mail->SMTPSecure = SMTP_SECURE;
+            $mail->Port = SMTP_PORT;
+            $mail->CharSet = EMAIL_CHARSET;
+            $mail->SMTPDebug = EMAIL_DEBUG ? 2 : 0;
+            
+            // Capturar errores SMTP en un buffer
+            ob_start();
+            $mail->Debugoutput = function($str, $level) {
+                error_log("SMTP Debug: $str");
+            };
 
             // Configuración del email
-            $mail->setFrom('fpantoja986@gmail.com', 'Mujeres en Tech');
+            $mail->setFrom(FROM_EMAIL, FROM_NAME);
             $mail->addAddress($user['email'], $user['nombre_completo']);
 
-            $link = "http://localhost/ProgramaTesis/cambiar_password.php?token=" . $token;
+            $link = BASE_URL . "/cambiar_password.php?token=" . $token;
 
-            $mail->isHTML(true);
+            if (EMAIL_FORCE_PLAIN) {
+                $mail->isHTML(false);
+            } else {
+                $mail->isHTML(true);
+            }
             $mail->Subject = 'Restablecer Contraseña - Mujeres en Tech';
             
             $mail->Body = "
@@ -184,8 +193,35 @@ try {
             jsonResponse(true, 'Te hemos enviado un enlace para restablecer tu contraseña. Revisa tu email (incluyendo spam).');
 
         } catch (\PHPMailer\PHPMailer\Exception $e) {
-            error_log("Error PHPMailer: " . $e->getMessage());
-            jsonResponse(false, 'No se pudo enviar el correo. Error: ' . $e->getMessage(), 500);
+            ob_clean();
+            $err = trim(($e->getMessage() ?? '') . ' ' . ($mail->ErrorInfo ?? ''));
+            if (stripos($err, 'Daily user sending limit exceeded') !== false || stripos($err, '5.4.5') !== false || stripos($err, 'reached a limit') !== false) {
+                jsonResponse(false, 'Has alcanzado el límite diario de envíos de Gmail. Intenta nuevamente en ~24 horas.', 429);
+            }
+            try {
+                $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+                $mail->isSMTP();
+                $mail->Host = SMTP_HOST;
+                $mail->SMTPAuth = true;
+                $mail->Username = SMTP_USERNAME;
+                $mail->Password = SMTP_PASSWORD;
+                $mail->SMTPSecure = SMTP_SECURE;
+                $mail->Port = SMTP_PORT;
+                $mail->CharSet = EMAIL_CHARSET;
+                $mail->SMTPDebug = EMAIL_DEBUG ? 2 : 0;
+                $mail->setFrom(FROM_EMAIL, FROM_NAME);
+                $mail->addAddress($user['email'], $user['nombre_completo']);
+                $mail->isHTML(false);
+                $fallbackLink = BASE_URL . "/cambiar_password.php?token=" . $token;
+                $plain = "Hola, {$user['nombre_completo']}\n\nPara restablecer tu contraseña, copia y pega este enlace en tu navegador:\n$fallbackLink";
+                $mail->Subject = 'Restablecer Contraseña';
+                $mail->Body = $plain;
+                $mail->send();
+                jsonResponse(true, 'Te hemos enviado un enlace en modo seguro para restablecer tu contraseña. Revisa tu email.');
+            } catch (\PHPMailer\PHPMailer\Exception $e2) {
+                $smtp_error = $mail->ErrorInfo ? $mail->ErrorInfo : $e->getMessage();
+                jsonResponse(false, 'Error al enviar el correo: ' . $smtp_error . ' | Fallback: ' . $e2->getMessage(), 500);
+            }
         }
     }
 

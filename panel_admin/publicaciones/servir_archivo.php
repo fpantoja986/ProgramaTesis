@@ -35,7 +35,7 @@ switch ($contenido['tipo']) {
         $mime_type = 'audio/mpeg'; // assuming mp3, adjust if needed
         break;
     case 'articulo':
-        $mime_type = 'text/plain';
+        $mime_type = 'application/pdf';
         break;
     case 'podcast':
         $mime_type = 'audio/mpeg';
@@ -82,7 +82,13 @@ if (isset($_SERVER['HTTP_RANGE'])) {
 }
 
 header("Content-Length: $length");
-header('Content-Disposition: inline; filename="archivo"');
+
+// Manejar descarga vs visualización
+if (isset($_GET['download']) && $_GET['download'] == '1') {
+    header('Content-Disposition: attachment; filename="' . $publicacion['titulo'] . '.pdf"');
+} else {
+    header('Content-Disposition: inline; filename="' . $publicacion['titulo'] . '.pdf"');
+}
 
 echo substr($archivo_data, $start, $length);
 exit;

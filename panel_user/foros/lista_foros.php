@@ -163,7 +163,7 @@ try {
 <body>
     <div class="main-container">
         <!-- Sidebar -->
-        <div class="col-md-3">
+        <div class="col-md-2">
             <?php include '../user_sidebar.php'; ?>
         </div>
         

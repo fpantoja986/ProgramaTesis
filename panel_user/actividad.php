@@ -266,10 +266,10 @@ $dias_miembro = (time() - strtotime($fecha_registro)) / (60 * 60 * 24);
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <?php include 'user_sidebar.php'; ?>
             </div>
-            <div class="col-md-9">
+            <div class="col-md-10">
                 <div class="p-4">
                     <!-- Header -->
                     <div class="activity-header">
